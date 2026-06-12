@@ -1,4 +1,15 @@
 package itens;
 
-public class ItemProtecao {
+import enums.TipoRaridade;
+
+public class ItemProtecao extends Item {
+    private int valorDefesa;
+    public ItemProtecao (String nome, int preco, TipoRaridade raridade, int valorDefesa) {
+        super(nome, preco, raridade);
+        this.valorDefesa = valorDefesa;
+    }
+
+    public int getValorDefesa() {
+        return valorDefesa;
+    }
 }
