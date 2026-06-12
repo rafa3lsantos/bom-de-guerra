@@ -32,7 +32,7 @@ public class Jogador extends Personagem {
     public void atacar(Personagem alvo){
         int danoTotal = this.forcaBase;
         if(this.armaEquipada != null) {
-            //fazer
+
         }
     }
 
