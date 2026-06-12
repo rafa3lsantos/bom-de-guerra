@@ -60,20 +60,20 @@ public class Jogador extends Personagem {
         this.escudoAtual = escudoAtual;
     }
 
-    public ItemAtaque getArmaAtual() {
-        return armaAtual;
+    public ItemAtaque getArmaEquipada() {
+        return armaEquipada;
     }
 
-    public void setArmaAtual(ItemAtaque armaAtual) {
-        this.armaAtual = armaAtual;
+    public void setArmaEquipada(ItemAtaque armaEquipada) {
+        this.armaEquipada = armaEquipada;
     }
 
     public ItemProtecao getArmaduraAtual() {
-        return armaduraAtual;
+        return armaduraEquipada;
     }
 
-    public void setArmaduraAtual(ItemProtecao armaduraAtual) {
-        this.armaduraAtual = armaduraAtual;
+    public void setArmaduraEquipadal(ItemProtecao armaduraEquipada) {
+        this.armaduraEquipada = armaduraEquipada;
     }
 
     public List<Item> getInventario() {
