@@ -60,19 +60,19 @@ public class Jogador extends Personagem {
         this.escudoAtual = escudoAtual;
     }
 
-    public ItemAtaque getArmaAtual() {
+    public ItemAtaque getArmaEquipada() {
         return armaEquipada;
     }
 
-    public void setArmaAtual(ItemAtaque armaEquipada) {
+    public void setArmaEquipada(ItemAtaque armaEquipada) {
         this.armaEquipada = Jogador.this.armaEquipada;
     }
 
-    public ItemProtecao getArmaduraAtual() {
+    public ItemProtecao getArmaduraEquipada() {
         return armaduraEquipada;
     }
 
-    public void setArmaduraAtual(ItemProtecao armaduraEquipada) {
+    public void setArmaduraEquipada(ItemProtecao armaduraEquipada) {
         this.armaduraEquipada = Jogador.this.armaduraEquipada;
     }
 
