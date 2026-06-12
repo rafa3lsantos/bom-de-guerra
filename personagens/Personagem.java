@@ -34,14 +34,21 @@ public abstract class Personagem implements Combatente {
     }
 
     public void setVidaAtual(int vidaAtual) {
-        this.vidaAtual = vidaAtual;
-    }
+        if (vidaAtual < 0) {
+            this.vidaAtual = 0;
+        } else if (vidaAtual > this.vidaMaxima) {
+            this.vidaAtual = this.vidaMaxima;
+        } else {
+            this.vidaAtual = vidaAtual;
+        }    }
 
-    public void atacar(Personagem personagem){
+    public abstract void atacar(Personagem alvo);
 
-    }
+    public abstract void defender();
 
-    public void defender() {
+    public abstract void receberDano(int danoBruto);
 
+    public boolean isVivo() {
+        return this.vidaAtual > 0;
     }
 }
