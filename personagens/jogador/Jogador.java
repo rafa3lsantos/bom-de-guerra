@@ -4,6 +4,7 @@ import enums.TipoGenero;
 import itens.Item;
 import itens.ItemAtaque;
 import itens.ItemProtecao;
+import jogo.InterfaceUsuario;
 import personagens.Personagem;
 import personagens.inimigos.Inimigo;
 
@@ -343,48 +344,53 @@ public class Jogador extends Personagem {
 
 
     public boolean adquirirItemInventario (Item item) {
-        if (inventario != inventario.isfull) {
+
+        if (this.inventario.size() < 20) {
             this.inventario.add(item);
-            //chama a funcao pra falar que foi add ao inventario
+
+            InterfaceUsuario.exibirItemAdicionado(item.getNome(), this.inventario.size(), 20);
             return true;
+
         } else {
-            //chama a função de falar que ta cheio
+            InterfaceUsuario.exibirInventarioCheio(item.getNome());
             return false;
         }
     }
 
     public boolean removerItemInventario (Item item) {
         if (this.inventario.contains(item)) {
+
             this.inventario.remove(item);
+            InterfaceUsuario.exibirItemRemovido(item.getNome(), this.inventario.size(), 20);
             return true;
         }
+
+        InterfaceUsuario.exibirErroRemocao(item.getNome());
         return false;
     }
 
 
     public boolean equiparArma (ItemAtaque novaArma) {
+
         if (!this.inventario.contains(novaArma)) {
-            // chama funcao pra falar que a arma nao esta no inventario
-            return;
+            InterfaceUsuario.exibirErroArmaNaoPossuida(novaArma.getNome());
+            return false;
         }
+
         this.inventario.remove(novaArma); //remove da bolsa, p ir pra mao
+
         if(this.armaEquipada != null) {
-            this.inventario.add(armaEquipada);
-            //chama funcao pra falar que a arma do nome tal foi guardada
+            this.inventario.add(this.armaEquipada);
+            InterfaceUsuario.exibirArmaGuardada(this.armaEquipada.getNome());
         }
 
         this.armaEquipada = novaArma;
-        //chama a função pra falar que a nova arma foi equipada
+        InterfaceUsuario.exibirArmaEquipada(this.armaEquipada.getNome(), this.armaEquipada.getDanoBonus());
 
+        return true;
     }
 
-    public void usarArma (Inimigo inimigo) {
-        if (equiparArma(armaEquipada)) {
-            armaEquipada.atacar(inimigo);
-        } else {
-            // chamar a funcao pra avisar que nenhuma arma foi equipada
-        }
-    }
+
 
 
 }

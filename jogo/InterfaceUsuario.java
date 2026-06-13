@@ -36,4 +36,43 @@ public class InterfaceUsuario {
             System.out.println(nome + " atacou com os " + nomeArmaEquipada);
         }
     }
+
+    public static void exibirItemAdicionado(String nomeItem, int tamanhoAtual, int limiteMax) {
+        System.out.println("\n🎒 [INVENTÁRIO] -> " + nomeItem + " foi guardado na sua bolsa.");
+        System.out.println("   Espaço ocupado: [" + tamanhoAtual + "/" + limiteMax + "]");
+    }
+
+    public static void exibirInventarioCheio(String nomeItem) {
+        System.out.println("\n⚠️  [⚠️ ALERTA] -> Não foi possível coletar: " + nomeItem);
+        System.out.println("❌ Sua bolsa está completamente cheia! Limite de 20 itens atingido.");
+        System.out.println("   Abra espaço no inventário ou venda itens para o Mercador.");
+    }
+
+    public static void exibirItemRemovido(String nomeItem, int tamanhoAtual, int limiteMax) {
+        System.out.println("\n🗑️  [INVENTÁRIO] -> " + nomeItem + " foi removido da sua bolsa.");
+        System.out.println("   Espaço restante: [" + tamanhoAtual + "/" + limiteMax + "]");
+    }
+
+    public static void exibirErroRemocao(String nomeItem) {
+        System.out.println("\n❌ [ERRO] -> Não foi possível remover o item: " + nomeItem + ".");
+        System.out.println("   Este item não foi encontrado no seu inventário.");
+    }
+
+    public static void exibirErroArmaNaoPossuida(String nomeArma) {
+        System.out.println("\n❌ [ERRO] -> Você não possui a arma '" + nomeArma + "' no seu inventário!");
+    }
+
+    public static void exibirArmaGuardada(String nomeArmaAntiga) {
+        System.out.println("🎒 [INVENTÁRIO] -> " + nomeArmaAntiga + " foi desequipada e guardada na bolsa.");
+    }
+
+    public static void exibirArmaEquipada(String nomeNovaArma, int danoBonus) {
+        System.out.println("⚔️  [EQUIPAMENTO] -> " + nomeNovaArma + " foi empunhada com sucesso!");
+        System.out.println("🔥 Seu bônus de ataque agora é de +" + danoBonus + " de dano místico.");
+    }
+
+    public static void exibirAvisoSemArma(String nomeJogador) {
+        System.out.println("\n👊 [COMBATE] -> " + nomeJogador + " não tem nenhuma arma equipada!");
+        System.out.println("   Você vai lutar usando os seus punhos nus!");
+    }
 }
