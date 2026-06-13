@@ -1,6 +1,7 @@
 package itens;
 
 import enums.TipoRaridade;
+import personagens.jogador.Jogador;
 
 public class ItemAtaque extends Item {
     private int danoBonus;
@@ -12,5 +13,7 @@ public class ItemAtaque extends Item {
     public int getDanoBonus() {
         return danoBonus;
     }
+
+
 
 }

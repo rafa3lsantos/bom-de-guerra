@@ -1,6 +1,7 @@
 package itens;
 
 import enums.TipoRaridade;
+import personagens.jogador.Jogador;
 
 public abstract class Item {
     private String nome;
@@ -41,4 +42,6 @@ public abstract class Item {
     public void setRaridade(TipoRaridade raridade) {
         this.raridade = raridade;
     }
+
+
 }

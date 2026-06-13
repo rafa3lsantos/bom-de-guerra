@@ -5,6 +5,7 @@ import itens.Item;
 import itens.ItemAtaque;
 import itens.ItemProtecao;
 import personagens.Personagem;
+import personagens.inimigos.Inimigo;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -83,4 +84,259 @@ public class Jogador extends Personagem {
     public void setInventario(List<Item> inventario) {
         this.inventario = inventario;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public boolean adquirirItemInventario (Item item) {
+        if (inventario != inventario.isfull) {
+            this.inventario.add(item);
+            //chama a funcao pra falar que foi add ao inventario
+            return true;
+        } else {
+            //chama a função de falar que ta cheio
+            return false;
+        }
+    }
+
+    public boolean removerItemInventario (Item item) {
+        if (this.inventario.contains(item)) {
+            this.inventario.remove(item);
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean equiparArma (ItemAtaque novaArma) {
+        if (!this.inventario.contains(novaArma)) {
+            // chama funcao pra falar que a arma nao esta no inventario
+            return;
+        }
+        this.inventario.remove(novaArma); //remove da bolsa, p ir pra mao
+        if(this.armaEquipada != null) {
+            this.inventario.add(armaEquipada);
+            //chama funcao pra falar que a arma do nome tal foi guardada
+        }
+
+        this.armaEquipada = novaArma;
+        //chama a função pra falar que a nova arma foi equipada
+
+    }
+
+    public void usarArma (Inimigo inimigo) {
+        if (equiparArma(armaEquipada)) {
+            armaEquipada.atacar(inimigo);
+        } else {
+            // chamar a funcao pra avisar que nenhuma arma foi equipada
+        }
+    }
+
+
 }
