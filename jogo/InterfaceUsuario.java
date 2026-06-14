@@ -2,6 +2,8 @@ package jogo;
 
 import itens.ItemAtaque;
 
+import java.util.ArrayList;
+
 public class InterfaceUsuario {
 
     public static void exibirInicioCombate(String nomeJogador, String nomeInimigo) {
@@ -104,4 +106,5 @@ public class InterfaceUsuario {
         System.out.println("\n❌ [AÇÃO INVÁLIDA] -> O item '" + nomeItem + "' não é um consumível!");
         System.out.println("   Você não pode beber ou usar este item para recuperar status.");
     }
+
 }
