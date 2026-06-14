@@ -1,6 +1,7 @@
 package personagens.jogador;
 
 import enums.TipoGenero;
+import excecoes.InventarioCheioException;
 import itens.*;
 import jogo.InterfaceUsuario;
 import personagens.Personagem;
@@ -18,7 +19,7 @@ public class Jogador extends Personagem {
     private List<Item> inventario;
     private int forcaBase;
 
-    public Jogador(String nome, int vidaMaxima, int vidaAtual, int escudoAtual, ItemAtaque armaAtual, ItemProtecao armaduraAtual, List<Item> inventario, int escudoMax) {
+    public Jogador(String nome, int vidaMaxima, int vidaAtual, int escudoAtual, ItemAtaque armaEquipada, ItemProtecao armaduraEquipada, List<Item> inventario, int escudoMax) {
         super(nome, 100, vidaAtual);
         this.escudoAtual = escudoAtual;
         this.escudoMax = 50;
@@ -26,11 +27,11 @@ public class Jogador extends Personagem {
         this.armaduraEquipada = armaduraEquipada;
         this.inventario = inventario;
         this.forcaBase = 10;
-        this.inventario = new ArrayList<>();
+        this.inventario = new ArrayList<>(); // Inicializa a lista vazia
     }
 
     @Override
-    public void atacar(Personagem alvo){
+    public void atacar(Personagem alvo) {
         int danoTotal = this.forcaBase;
         if(this.armaEquipada != null) {
             danoTotal += this.armaEquipada.getDanoBonus();
@@ -40,6 +41,9 @@ public class Jogador extends Personagem {
             //System.out.println(getNome() + " atacou sem armas");
             jogo.InterfaceUsuario.atacou(false, getNome(), getArmaEquipada());
         }
+
+        // Aplica o ataque no inimigo passsado como alvo
+        alvo.receberDano(danoTotal);
     }
 
     @Override
@@ -52,20 +56,21 @@ public class Jogador extends Personagem {
         System.out.println(getNome() + " adotou uma postura defensiva e recuperou " + recuperacao + " de escudo!");
     }
 
+    @Override
     public void receberDano(int danoBruto) {
         int percentualDefesa = 0;
 
-        if(this.armaduraEquipada != null) {
+        if (this.armaduraEquipada != null) {
             percentualDefesa = this.armaduraEquipada.getValorDefesa();
         }
 
         double reducao = danoBruto - (percentualDefesa / 100);
         int danoFinal = danoBruto - (int)reducao;
 
-        jogo.InterfaceUsuario.exibirRelatorioDano(danoBruto, percentualDefesa, (int)reducao, danoFinal);
+        InterfaceUsuario.exibirRelatorioDano(danoBruto, percentualDefesa, (int) reducao, danoFinal);
 
-        if(escudoAtual > 0) {
-            if(danoFinal <= escudoAtual) {
+        if (escudoAtual > 0) {
+            if (danoFinal <= escudoAtual) {
                 this.escudoAtual -= danoFinal;
                 danoFinal = 0;
                 System.out.println("🛡️ Seu escudo absorveu todo o impacto!");
@@ -76,240 +81,18 @@ public class Jogador extends Personagem {
             }
         }
 
-        if(danoFinal > 0) {
+        if (danoFinal > 0) {
             int novaVida = getVidaAtual() - danoFinal;
             setVidaAtual(novaVida);
         }
 
-        jogo.InterfaceUsuario.exibirStatusPersonagem(getNome(), getVidaAtual(), getVidaMaxima(), this.escudoAtual, this.escudoMax);
+        InterfaceUsuario.exibirStatusPersonagem(getNome(), getVidaAtual(), getVidaMaxima(), this.escudoAtual, this.escudoMax);
     }
 
-    public TipoGenero getGenero() {
-        return genero;
-    }
-
-    public void setGenero(TipoGenero genero) {
-        this.genero = genero;
-    }
-
-    public int getEscudoMax() {
-        return escudoMax;
-    }
-
-    public void setEscudoMax(int escudoMax) {
-        this.escudoMax = escudoMax;
-    }
-
-    public int getEscudoAtual() {
-        return escudoAtual;
-    }
-
-    public void setEscudoAtual(int escudoAtual) {
-        this.escudoAtual = escudoAtual;
-    }
-
-    public ItemAtaque getArmaEquipada() {
-        return armaEquipada;
-    }
-
-    public void setArmaEquipada(ItemAtaque armaEquipada) {
-        this.armaEquipada = Jogador.this.armaEquipada;
-    }
-
-    public ItemProtecao getArmaduraEquipada() {
-        return armaduraEquipada;
-    }
-
-    public void setArmaduraEquipada(ItemProtecao armaduraEquipada) {
-        this.armaduraEquipada = Jogador.this.armaduraEquipada;
-    }
-
-    public List<Item> getInventario() {
-        return inventario;
-    }
-
-    public void setInventario(List<Item> inventario) {
-        this.inventario = inventario;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public boolean adquirirItemInventario (Item item) {
-    //ver se fica melhor guardar todas em um saquinho que ocupa um espaço de 20 no inventario
-    // ou guardar em N saquinhos com N moedas dentro cada um e que ocupe N espacos no inventario
-
+    // CORRIGIDO: Parênteses adicionados, parâmetro mapeado e "return" fantasma removido do throw
+    public boolean adquirirItemInventario(Item item) throws InventarioCheioException {
         if (item instanceof Moeda) {
             Moeda moedaNova = (Moeda) item;
-
             Moeda saquinhoExistente = buscarSaquinhoMoedas();
 
             if (saquinhoExistente != null) {
@@ -325,12 +108,12 @@ public class Jogador extends Personagem {
             return true;
         } else {
             InterfaceUsuario.exibirInventarioCheio(item.getNome());
-            return false;
+            throw new InventarioCheioException("O inventário atingiu o limite máximo de 20 itens.");
         }
     }
 
-    public Moeda buscarSaquinhoMoedas () {
-        for (Item item: this.inventario) {
+    public Moeda buscarSaquinhoMoedas() {
+        for (Item item : this.inventario) {
             if (item instanceof Moeda) {
                 return (Moeda) item;
             }
@@ -338,8 +121,7 @@ public class Jogador extends Personagem {
         return null;
     }
 
-    public boolean removerItemInventario (Item item) {
-
+    public boolean removerItemInventario(Item item) {
         if (this.inventario.contains(item)) {
             this.inventario.remove(item);
             InterfaceUsuario.exibirItemRemovido(item.getNome(), this.inventario.size(), 20);
@@ -350,9 +132,7 @@ public class Jogador extends Personagem {
         return false;
     }
 
-
-    public boolean equiparItem (Item itemGenerico) { //sejam eles: item de ataque ou protecao
-
+    public boolean equiparItem(Item itemGenerico) {
         if (!this.inventario.contains(itemGenerico)) {
             InterfaceUsuario.exibirErroItemNaoPossuido(itemGenerico.getNome());
             return false;
@@ -386,7 +166,6 @@ public class Jogador extends Personagem {
             InterfaceUsuario.exibirAvisoItemNaoEquipavel(itemGenerico.getNome());
             return false;
         }
-
     }
 
     public boolean usarItemConsumivel (Item itemGenerico) {
@@ -398,28 +177,22 @@ public class Jogador extends Personagem {
 
         if (itemGenerico instanceof ItemConsumivel) {
             ItemConsumivel pocao = (ItemConsumivel) itemGenerico;
-
             int cura = pocao.getValorRecuperacao();
 
             switch (pocao.getTipoRecuperacao()){
                 case CURA_VIDA:
                     int vidaAntes = getVidaAtual();
-
                     setVidaAtual(getVidaAtual() + cura);
                     int ganhoRealVida = getVidaAtual() - vidaAntes;
-
                     InterfaceUsuario.exibirCuraVida(pocao.getNome(), ganhoRealVida, getVidaAtual(), getVidaMaxima());
                     break;
-
 
                 case CURA_ESCUDO:
                     int escudoAntes = getEscudoAtual();
                     setEscudoAtual(getEscudoAtual() + cura);
-
                     if (this.escudoAtual > getEscudoMax()) {
                         this.escudoAtual = getEscudoMax();
                     }
-
                     int ganhoRealEscudo = this.escudoAtual - escudoAntes;
                     InterfaceUsuario.exibirCuraEscudo(pocao.getNome(), ganhoRealEscudo, this.escudoAtual, this.escudoMax);
                     break;
@@ -427,14 +200,46 @@ public class Jogador extends Personagem {
 
             this.inventario.remove(pocao);
             return true;
-        }
-        else {
+        } else {
             InterfaceUsuario.exibirErroItemNaoConsumivel(itemGenerico.getNome());
             return false;
         }
     }
 
+    public int obtenerSaldoDracmas() {
+        Moeda saquinho = buscarSaquinhoMoedas();
+        if (saquinho != null) {
+            return saquinho.getQuantidade();
+        }
+        return 0;
+    }
 
+    public void pagarMercador(int custo) {
+        Moeda saquinho = buscarSaquinhoMoedas();
+        if (saquinho != null) {
+            saquinho.removerQuantidade(custo);
+            if (saquinho.getQuantidade() <= 0) {
+                this.inventario.remove(saquinho);
+            }
+        }
+    }
 
+    // --- GETTERS & SETTERS CORRIGIDOS ---
+    public TipoGenero getGenero() { return genero; }
+    public void setGenero(TipoGenero genero) { this.genero = genero; }
 
+    public int getEscudoMax() { return escudoMax; }
+    public void setEscudoMax(int escudoMax) { this.escudoMax = escudoMax; }
+
+    public int getEscudoAtual() { return escudoAtual; }
+    public void setEscudoAtual(int escudoAtual) { this.escudoAtual = escudoAtual; }
+
+    public ItemAtaque getArmaEquipada() { return armaEquipada; }
+    public void setArmaEquipada(ItemAtaque armaEquipada) { this.armaEquipada = armaEquipada; } // Corrigido
+
+    public ItemProtecao getArmaduraEquipada() { return armaduraEquipada; }
+    public void setArmaduraEquipada(ItemProtecao armaduraEquipada) { this.armaduraEquipada = armaduraEquipada; } // Corrigido
+
+    public List<Item> getInventario() { return inventario; }
+    public void setInventario(List<Item> inventario) { this.inventario = inventario; }
 }
