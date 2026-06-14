@@ -1,7 +1,9 @@
 package jogo;
 
+import enums.TipoConsumivel;
 import enums.TipoGenero;
 import enums.TipoRaridade;
+import excecoes.InventarioCheioException;
 import itens.ItemAtaque;
 import itens.ItemConsumivel;
 import itens.ItemProtecao;
@@ -100,14 +102,14 @@ public class GerenciadorJogo {
 
         double chance = Math.random();
         if (chance < 0.5) {
-            this.inimigoAtual = new InimigoComum("Minotauro de Creta", 60, 12);
+            //    public InimigoComum(String nome, int vidaMaxima, int vidaAtual, int danoBase, int dracmasDropadas) {
+            this.inimigoAtual = new InimigoComum("Minotauro de Creta", 60, 12, 20, 13);
             System.out.println("Amedrontador! Um " + inimigoAtual.getNome() + " surge dos labirintos!");
         } else {
-            this.inimigoAtual = new Ciclope("Ciclope Forjador", 80, 15);
+            this.inimigoAtual = new InimigoComum("Ciclope Forjador", 80, 15, 22, 16);
             System.out.println("O chão treme! Um " + inimigoAtual.getNome() + " bloqueia sua saída!");
         }
 
-        // Inicia o loop de combate passando as instâncias que guardamos aqui
         executarTurnoCombate();
     }
 
@@ -120,19 +122,17 @@ public class GerenciadorJogo {
             scanner.nextLine();
 
             if (acao == 1) {
-                player.atacar(inimigoAtual); // Seu método atacar
-                // inimigoAtual.receberDano(danoCalculado); // Lógica do monstro
+                player.atacar(inimigoAtual);
+                inimigoAtual.receberDano(20); // Lógica do monstro
             } else {
-                player.defender(); // Seu método defender que recupera escudo
+                player.defender();
             }
 
-            // Se o monstro sobreviveu, ele ataca de volta
             if (inimigoAtual.getVidaAtual() > 0) {
                 System.out.println("\n--- TURNO DO INIMIGO ---");
-                // Supondo que o inimigo tem um método getForca()
                 int danoInimigo = 15;
                 System.out.println(inimigoAtual.getNome() + " contra-ataca!");
-                player.receberDano(danoInimigo); // Seu método complexo de absorção por escudo/armadura
+                player.receberDano(danoInimigo);
             }
         }
 
@@ -140,16 +140,19 @@ public class GerenciadorJogo {
             System.out.println("💀 Você foi derrotado e sua alma foi levada ao Tártaro...");
         } else {
             System.out.println("🎉 Vitória! Você derrotou o " + inimigoAtual.getNome());
-            droparItemOlimpico();
+            try {
+                droparItemOlimpico();
+            } catch (InventarioCheioException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
-    private void droparItemOlimpico() {
-        // 6. INSTANCIANDO ITENS RECOMPENSA
+    private void droparItemOlimpico() throws InventarioCheioException {
         System.out.println("\nO monstro deixou algo cair no chão!");
-        ItemConsumivel pocaoAmbrosia = new ItemConsumivel("Ambrósia Divina", TipoRecuperacao.CURA_VIDA, 30);
+        //public ItemConsumivel(String nome,TipoRaridade raridade, int valorRecuperacao, TipoConsumivel tipoRecuperacao) {
+        ItemConsumivel pocaoAmbrosia = new ItemConsumivel("Ambrósia Divina", TipoRaridade.RARO, 30, TipoConsumivel.CURA_VIDA);
 
-        // Chamando seu método adquirirItemInventario que valida os 20 espaços e agrupa moedas!
         player.adquirirItemInventario(pocaoAmbrosia);
     }
 
@@ -163,6 +166,8 @@ public class GerenciadorJogo {
         for (int i = 0; i < player.getInventario().size(); i++) {
             System.out.println(i + " - " + player.getInventario().get(i).getNome());
         }
+
+
         // Aqui você poderia dar a opção de digitar o número do item e chamar:
         // player.usarItemConsumivel(item) ou player.equiparItem(item)
     }

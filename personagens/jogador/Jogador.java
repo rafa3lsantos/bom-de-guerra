@@ -42,6 +42,7 @@ public class Jogador extends Personagem {
         this.escudoMax = 50;
         this.armaEquipada = armaEquipada;
         this.armaduraEquipada = armaduraEquipada;
+        this.inventario = inventario;
         this.forcaBase = 10;
         this.inventario = new ArrayList<>(); // Inicializa a lista vazia
     }
@@ -144,7 +145,7 @@ public class Jogador extends Personagem {
         }
     }
 
-    private Moeda buscarSaquinhoMoedas() {
+    public Moeda buscarSaquinhoMoedas() {
         for (Item item : this.inventario) {
             if (item instanceof Moeda) {
                 return (Moeda) item;
