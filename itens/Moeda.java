@@ -22,5 +22,10 @@ public class Moeda extends Item {
         this.quantidade += quantidadeASerAdicionada;
     }
 
+    public void removerQuantidade (int quantidadeASerRemovida) {
+        this.quantidade -= quantidadeASerRemovida;
+    }
+
+
 
 }

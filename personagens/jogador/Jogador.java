@@ -303,44 +303,6 @@ public class Jogador extends Personagem {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public boolean adquirirItemInventario (Item item) {
     //ver se fica melhor guardar todas em um saquinho que ocupa um espaço de 20 no inventario
     // ou guardar em N saquinhos com N moedas dentro cada um e que ocupe N espacos no inventario
