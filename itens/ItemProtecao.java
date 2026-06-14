@@ -9,6 +9,11 @@ public class ItemProtecao extends Item {
         this.valorDefesa = valorDefesa;
     }
 
+    public ItemProtecao(String nome, TipoRaridade raridade, int valorDefesa) {
+        super(nome, raridade);
+        this.valorDefesa = valorDefesa;
+    }
+
     public int getValorDefesa() {
         return valorDefesa;
     }

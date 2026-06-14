@@ -10,6 +10,11 @@ public class ItemAtaque extends Item {
         this.danoBonus = danoBonus;
     }
 
+    public ItemAtaque(String nome, TipoRaridade raridade, int danoBonus) {
+        super(nome, raridade);
+        this.danoBonus = danoBonus;
+    }
+
     public int getDanoBonus() {
         return danoBonus;
     }

@@ -1,9 +1,7 @@
 package personagens.jogador;
 
 import enums.TipoGenero;
-import itens.Item;
-import itens.ItemAtaque;
-import itens.ItemProtecao;
+import itens.*;
 import jogo.InterfaceUsuario;
 import personagens.Personagem;
 import personagens.inimigos.Inimigo;
@@ -344,22 +342,43 @@ public class Jogador extends Personagem {
 
 
     public boolean adquirirItemInventario (Item item) {
+    //ver se fica melhor guardar todas em um saquinho que ocupa um espaço de 20 no inventario
+    // ou guardar em N saquinhos com N moedas dentro cada um e que ocupe N espacos no inventario
+
+        if (item instanceof Moeda) {
+            Moeda moedaNova = (Moeda) item;
+
+            Moeda saquinhoExistente = buscarSaquinhoMoedas();
+
+            if (saquinhoExistente != null) {
+                saquinhoExistente.adicionarQuantidade(moedaNova.getQuantidade());
+                InterfaceUsuario.exibirItemAdicionado(moedaNova.getQuantidade() + " Dracmas", this.inventario.size(), 20);
+                return true;
+            }
+        }
 
         if (this.inventario.size() < 20) {
             this.inventario.add(item);
-
             InterfaceUsuario.exibirItemAdicionado(item.getNome(), this.inventario.size(), 20);
             return true;
-
         } else {
             InterfaceUsuario.exibirInventarioCheio(item.getNome());
             return false;
         }
     }
 
-    public boolean removerItemInventario (Item item) {
-        if (this.inventario.contains(item)) {
+    public Moeda buscarSaquinhoMoedas () {
+        for (Item item: this.inventario) {
+            if (item instanceof Moeda) {
+                return (Moeda) item;
+            }
+        }
+        return null;
+    }
 
+    public boolean removerItemInventario (Item item) {
+
+        if (this.inventario.contains(item)) {
             this.inventario.remove(item);
             InterfaceUsuario.exibirItemRemovido(item.getNome(), this.inventario.size(), 20);
             return true;
@@ -370,24 +389,87 @@ public class Jogador extends Personagem {
     }
 
 
-    public boolean equiparArma (ItemAtaque novaArma) {
+    public boolean equiparItem (Item itemGenerico) { //sejam eles: item de ataque ou protecao
 
-        if (!this.inventario.contains(novaArma)) {
-            InterfaceUsuario.exibirErroArmaNaoPossuida(novaArma.getNome());
+        if (!this.inventario.contains(itemGenerico)) {
+            InterfaceUsuario.exibirErroItemNaoPossuido(itemGenerico.getNome());
             return false;
         }
 
-        this.inventario.remove(novaArma); //remove da bolsa, p ir pra mao
-
-        if(this.armaEquipada != null) {
-            this.inventario.add(this.armaEquipada);
-            InterfaceUsuario.exibirArmaGuardada(this.armaEquipada.getNome());
+        if (itemGenerico instanceof ItemAtaque) {
+            ItemAtaque novaArma = (ItemAtaque) itemGenerico;
+            this.inventario.remove(novaArma); //remove da bolsa, p ir pra mao
+            if(this.armaEquipada != null) {
+                this.inventario.add(this.armaEquipada);
+                InterfaceUsuario.exibirArmaGuardada(this.armaEquipada.getNome());
+            }
+            this.armaEquipada = novaArma;
+            InterfaceUsuario.exibirArmaEquipada(this.armaEquipada.getNome(), this.armaEquipada.getDanoBonus());
+            return true;
         }
 
-        this.armaEquipada = novaArma;
-        InterfaceUsuario.exibirArmaEquipada(this.armaEquipada.getNome(), this.armaEquipada.getDanoBonus());
+        else if (itemGenerico instanceof ItemProtecao) {
+            ItemProtecao novaArmadura = (ItemProtecao) itemGenerico;
+            this.inventario.remove(novaArmadura);
+            if (this.armaduraEquipada != null) {
+                this.inventario.add(this.armaduraEquipada);
+                InterfaceUsuario.exibirArmaduraGuardada(this.armaduraEquipada.getNome());
+            }
+            this.armaduraEquipada = novaArmadura;
+            InterfaceUsuario.exibirArmaduraEquipada(this.armaduraEquipada.getNome(), this.armaduraEquipada.getValorDefesa());
+            return true;
+        }
 
-        return true;
+        else {
+            InterfaceUsuario.exibirAvisoItemNaoEquipavel(itemGenerico.getNome());
+            return false;
+        }
+
+    }
+
+    public boolean usarItemConsumivel (Item itemGenerico) {
+
+        if (!this.inventario.contains(itemGenerico)) {
+            InterfaceUsuario.exibirErroItemNaoPossuido(itemGenerico.getNome());
+            return false;
+        }
+
+        if (itemGenerico instanceof ItemConsumivel) {
+            ItemConsumivel pocao = (ItemConsumivel) itemGenerico;
+
+            int cura = pocao.getValorRecuperacao();
+
+            switch (pocao.getTipoRecuperacao()){
+                case CURA_VIDA:
+                    int vidaAntes = getVidaAtual();
+
+                    setVidaAtual(getVidaAtual() + cura);
+                    int ganhoRealVida = getVidaAtual() - vidaAntes;
+
+                    InterfaceUsuario.exibirCuraVida(pocao.getNome(), ganhoRealVida, getVidaAtual(), getVidaMaxima());
+                    break;
+
+
+                case CURA_ESCUDO:
+                    int escudoAntes = getEscudoAtual();
+                    setEscudoAtual(getEscudoAtual() + cura);
+
+                    if (this.escudoAtual > getEscudoMax()) {
+                        this.escudoAtual = getEscudoMax();
+                    }
+
+                    int ganhoRealEscudo = this.escudoAtual - escudoAntes;
+                    InterfaceUsuario.exibirCuraEscudo(pocao.getNome(), ganhoRealEscudo, this.escudoAtual, this.escudoMax);
+                    break;
+            }
+
+            this.inventario.remove(pocao);
+            return true;
+        }
+        else {
+            InterfaceUsuario.exibirErroItemNaoConsumivel(itemGenerico.getNome());
+            return false;
+        }
     }
 
 

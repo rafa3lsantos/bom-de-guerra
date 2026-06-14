@@ -58,21 +58,50 @@ public class InterfaceUsuario {
         System.out.println("   Este item não foi encontrado no seu inventário.");
     }
 
-    public static void exibirErroArmaNaoPossuida(String nomeArma) {
-        System.out.println("\n❌ [ERRO] -> Você não possui a arma '" + nomeArma + "' no seu inventário!");
+    public static void exibirErroItemNaoPossuido(String nomeItem) {
+        System.out.println("\n❌ [ERRO] -> Você não possui o item '" + nomeItem + "' no seu inventário!");
     }
 
     public static void exibirArmaGuardada(String nomeArmaAntiga) {
         System.out.println("🎒 [INVENTÁRIO] -> " + nomeArmaAntiga + " foi desequipada e guardada na bolsa.");
+    }
+    public static void exibirArmaduraGuardada(String nomeArmaduraAntiga) {
+        System.out.println("🎒 [INVENTÁRIO] -> " + nomeArmaduraAntiga + " foi desequipada e guardada na bolsa.");
     }
 
     public static void exibirArmaEquipada(String nomeNovaArma, int danoBonus) {
         System.out.println("⚔️  [EQUIPAMENTO] -> " + nomeNovaArma + " foi empunhada com sucesso!");
         System.out.println("🔥 Seu bônus de ataque agora é de +" + danoBonus + " de dano místico.");
     }
+    public static void exibirArmaduraEquipada(String nomeNovaArmadura, int valorDefesa) {
+        System.out.println("⚔️  [EQUIPAMENTO] -> " + nomeNovaArmadura + " foi empunhada com sucesso!");
+        System.out.println("🔥 Seu valor de proteção agora é de +" + valorDefesa);
+    }
 
     public static void exibirAvisoSemArma(String nomeJogador) {
         System.out.println("\n👊 [COMBATE] -> " + nomeJogador + " não tem nenhuma arma equipada!");
         System.out.println("   Você vai lutar usando os seus punhos nus!");
+    }
+
+    public static void exibirAvisoItemNaoEquipavel (String nomeItem) {
+        System.out.println("\n❌ [AÇÃO INVÁLIDA] -> O item '" + nomeItem + "' não pode ser equipado!");
+        System.out.println("   Apenas Armas e Armaduras podem ser colocadas nos slots de equipamento.");
+    }
+
+    public static void exibirCuraVida(String nomeItem, int qtdCurada, int vidaAtual, int vidaMax) {
+        System.out.println("\n🧪 [CONSUMÍVEL] -> Você tomou " + nomeItem + ".");
+        System.out.println("❤️  +" + qtdCurada + " de Vida restaurada!");
+        System.out.println("📊 Status Atualizado -> Vida: [" + vidaAtual + "/" + vidaMax + "]");
+    }
+
+    public static void exibirCuraEscudo(String nomeItem, int qtdCurada, int escudoAtual, int escudoMax) {
+        System.out.println("\n🧪 [CONSUMÍVEL] -> Você tomou " + nomeItem + ".");
+        System.out.println("🛡️  +" + qtdCurada + " de Escudo restaurado!");
+        System.out.println("📊 Status Atualizado -> Escudo: [" + escudoAtual + "/" + escudoMax + "]");
+    }
+
+    public static void exibirErroItemNaoConsumivel(String nomeItem) {
+        System.out.println("\n❌ [AÇÃO INVÁLIDA] -> O item '" + nomeItem + "' não é um consumível!");
+        System.out.println("   Você não pode beber ou usar este item para recuperar status.");
     }
 }
