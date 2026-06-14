@@ -206,7 +206,7 @@ public class Jogador extends Personagem {
         }
     }
 
-    public int obtenerSaldoDracmas() {
+    public int obterSaldoDracmas() {
         Moeda saquinho = buscarSaquinhoMoedas();
         if (saquinho != null) {
             return saquinho.getQuantidade();
