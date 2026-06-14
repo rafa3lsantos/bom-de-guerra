@@ -3,6 +3,7 @@ package jogo;
 import enums.TipoGenero;
 import enums.TipoRaridade;
 import itens.ItemAtaque;
+import itens.ItemConsumivel;
 import itens.ItemProtecao;
 import personagens.Personagem;
 import personagens.inimigos.Inimigo;

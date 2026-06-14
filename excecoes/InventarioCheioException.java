@@ -1,10 +1,17 @@
 package excecoes;
-// Ao estender 'Exception', o Java passa a reconhecer esta classe como um erro oficial do sistema
+
+/**
+ * Exceção disparada para indicar que o inventário do jogador atingiu
+ * o limite máximo de capacidade permitido (20 slots).
+ * * @author Rafael
+ */
 public class InventarioCheioException extends Exception {
 
-    // Construtor que recebe a mensagem personalizada de erro
+    /**
+     * Cria a exceção definindo o texto explicativo sobre o erro do inventário.
+     * * @param mensagem O texto detalhado descrevendo o motivo do travamento.
+     */
     public InventarioCheioException(String mensagem) {
-        // O 'super' repassa essa mensagem para a classe mãe (Exception) do Java
         super(mensagem);
     }
 }

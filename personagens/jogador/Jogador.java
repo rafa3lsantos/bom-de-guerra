@@ -10,6 +10,11 @@ import personagens.inimigos.Inimigo;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Classe que controla as ações, status e inventário do herói do jogo.
+ * Cuida de equipar armas, usar poções, gerenciar dinheiro e defender golpes.
+ * * @author Rafael e Rafaela
+ */
 public class Jogador extends Personagem {
     private TipoGenero genero;
     private int escudoMax;
@@ -19,33 +24,49 @@ public class Jogador extends Personagem {
     private List<Item> inventario;
     private int forcaBase;
 
+    /**
+     * Construtor para criar o seu herói com todos os status iniciais.
+     * O inventário começa automaticamente como uma lista vazia e limpa.
+     * * @param nome             Nome do herói.
+     * @param vidaMaxima       Limite máximo de pontos de vida.
+     * @param vidaAtual        Vida com que o jogador vai começar.
+     * @param escudoAtual      Escudo inicial do jogador.
+     * @param armaEquipada     Arma que ele já começa segurando (pode ser null).
+     * @param armaduraEquipada Armadura que ele já começa vestindo (pode ser null).
+     * @param inventario       Lista para os itens (reiniciada internamente).
+     * @param escudoMax        Limite máximo do escudo.
+     */
     public Jogador(String nome, int vidaMaxima, int vidaAtual, int escudoAtual, ItemAtaque armaEquipada, ItemProtecao armaduraEquipada, List<Item> inventario, int escudoMax) {
         super(nome, 100, vidaAtual);
         this.escudoAtual = escudoAtual;
         this.escudoMax = 50;
         this.armaEquipada = armaEquipada;
         this.armaduraEquipada = armaduraEquipada;
-        this.inventario = inventario;
         this.forcaBase = 10;
         this.inventario = new ArrayList<>(); // Inicializa a lista vazia
     }
 
+    /**
+     * Dá um golpe no oponente passado como alvo.
+     * O dano total junta a força base do herói com o bônus da arma equipada.
+     * * @param alvo O inimigo ou personagem que vai receber o ataque.
+     */
     @Override
     public void atacar(Personagem alvo) {
         int danoTotal = this.forcaBase;
         if(this.armaEquipada != null) {
             danoTotal += this.armaEquipada.getDanoBonus();
-            //System.out.println(getNome() + " atacou com " + this.armaEquipada.getNome() + "!");
             jogo.InterfaceUsuario.atacou(true, getNome(), getArmaEquipada());
         } else {
-            //System.out.println(getNome() + " atacou sem armas");
             jogo.InterfaceUsuario.atacou(false, getNome(), getArmaEquipada());
         }
 
-        // Aplica o ataque no inimigo passsado como alvo
         alvo.receberDano(danoTotal);
     }
 
+    /**
+     * Faz o jogador entrar em postura de guarda, recuperando uma quantidade fixa de escudo.
+     */
     @Override
     public void defender() {
         int recuperacao = 10;
@@ -56,6 +77,11 @@ public class Jogador extends Personagem {
         System.out.println(getNome() + " adotou uma postura defensiva e recuperou " + recuperacao + " de escudo!");
     }
 
+    /**
+     * Calcula o dano recebido aplicando a redução da armadura equipada.
+     * O escudo absorve o impacto primeiro e, se quebrar, o resto vai direto para a vida.
+     * * @param danoBruto O valor do dano do monstro antes de qualquer defesa do jogador.
+     */
     @Override
     public void receberDano(int danoBruto) {
         int percentualDefesa = 0;
@@ -64,7 +90,7 @@ public class Jogador extends Personagem {
             percentualDefesa = this.armaduraEquipada.getValorDefesa();
         }
 
-        double reducao = danoBruto - (percentualDefesa / 100);
+        double reducao = danoBruto * (percentualDefesa / 100.0);
         int danoFinal = danoBruto - (int)reducao;
 
         InterfaceUsuario.exibirRelatorioDano(danoBruto, percentualDefesa, (int) reducao, danoFinal);
@@ -89,7 +115,13 @@ public class Jogador extends Personagem {
         InterfaceUsuario.exibirStatusPersonagem(getNome(), getVidaAtual(), getVidaMaxima(), this.escudoAtual, this.escudoMax);
     }
 
-    // CORRIGIDO: Parênteses adicionados, parâmetro mapeado e "return" fantasma removido do throw
+    /**
+     * Guarda um novo item na bolsa do jogador. Se for dinheiro, junta de forma inteligente
+     * no mesmo saquinho, sem gastar espaços extras do inventário.
+     * * @param item O item ou moeda que o jogador acabou de achar.
+     * @return true se deu tudo certo ao guardar ou acumular o item.
+     * @throws InventarioCheioException Se a bolsa já estiver com o limite máximo de 20 slots ocupados.
+     */
     public boolean adquirirItemInventario(Item item) throws InventarioCheioException {
         if (item instanceof Moeda) {
             Moeda moedaNova = (Moeda) item;
@@ -112,7 +144,7 @@ public class Jogador extends Personagem {
         }
     }
 
-    public Moeda buscarSaquinhoMoedas() {
+    private Moeda buscarSaquinhoMoedas() {
         for (Item item : this.inventario) {
             if (item instanceof Moeda) {
                 return (Moeda) item;
@@ -121,6 +153,11 @@ public class Jogador extends Personagem {
         return null;
     }
 
+    /**
+     * Joga fora um item do inventário. É usado nas vendas do Mercador.
+     * * @param item O item que vai sumir da bolsa.
+     * @return true se o jogador realmente tinha esse item e ele foi removido.
+     */
     public boolean removerItemInventario(Item item) {
         if (this.inventario.contains(item)) {
             this.inventario.remove(item);
@@ -132,6 +169,12 @@ public class Jogador extends Personagem {
         return false;
     }
 
+    /**
+     * Tira uma arma ou armadura da bolsa e coloca nos slots de equipamento ativo.
+     * Se você já tinha algo equipado, o item antigo volta em segurança para o inventário.
+     * * @param itemGenerico O item clicado/escolhido dentro da bolsa.
+     * @return true se o item puder ser equipado com sucesso.
+     */
     public boolean equiparItem(Item itemGenerico) {
         if (!this.inventario.contains(itemGenerico)) {
             InterfaceUsuario.exibirErroItemNaoPossuido(itemGenerico.getNome());
@@ -140,7 +183,7 @@ public class Jogador extends Personagem {
 
         if (itemGenerico instanceof ItemAtaque) {
             ItemAtaque novaArma = (ItemAtaque) itemGenerico;
-            this.inventario.remove(novaArma); //remove da bolsa, p ir pra mao
+            this.inventario.remove(novaArma);
             if(this.armaEquipada != null) {
                 this.inventario.add(this.armaEquipada);
                 InterfaceUsuario.exibirArmaGuardada(this.armaEquipada.getNome());
@@ -168,8 +211,13 @@ public class Jogador extends Personagem {
         }
     }
 
+    /**
+     * Consome uma poção da bolsa. Recupera vida ou escudo dependendo do tipo da poção
+     * e joga o frasco vazio fora (deleta o item da lista) depois do uso.
+     * * @param itemGenerico A poção selecionada no inventário.
+     * @return true se o item foi bebido/usado corretamente.
+     */
     public boolean usarItemConsumivel (Item itemGenerico) {
-
         if (!this.inventario.contains(itemGenerico)) {
             InterfaceUsuario.exibirErroItemNaoPossuido(itemGenerico.getNome());
             return false;
@@ -206,7 +254,11 @@ public class Jogador extends Personagem {
         }
     }
 
-    public int obtenerSaldoDracmas() {
+    /**
+     * Diz quantas moedas (Dracmas) o jogador tem guardadas ao todo.
+     * * @return O saldo total em dinheiro, ou 0 se a bolsa estiver sem nenhuma moeda.
+     */
+    public int obterSaldoDracmas() {
         Moeda saquinho = buscarSaquinhoMoedas();
         if (saquinho != null) {
             return saquinho.getQuantidade();
@@ -214,6 +266,11 @@ public class Jogador extends Personagem {
         return 0;
     }
 
+    /**
+     * Gasta as moedas da bolsa para pagar uma compra feita com o Mercador.
+     * Se o dinheiro zerar, remove o item da lista para não gastar espaço de bobeira.
+     * * @param custo Valor cobrado pelo item na loja.
+     */
     public void pagarMercador(int custo) {
         Moeda saquinho = buscarSaquinhoMoedas();
         if (saquinho != null) {
@@ -224,7 +281,6 @@ public class Jogador extends Personagem {
         }
     }
 
-    // --- GETTERS & SETTERS CORRIGIDOS ---
     public TipoGenero getGenero() { return genero; }
     public void setGenero(TipoGenero genero) { this.genero = genero; }
 
@@ -235,10 +291,10 @@ public class Jogador extends Personagem {
     public void setEscudoAtual(int escudoAtual) { this.escudoAtual = escudoAtual; }
 
     public ItemAtaque getArmaEquipada() { return armaEquipada; }
-    public void setArmaEquipada(ItemAtaque armaEquipada) { this.armaEquipada = armaEquipada; } // Corrigido
+    public void setArmaEquipada(ItemAtaque armaEquipada) { this.armaEquipada = armaEquipada; }
 
     public ItemProtecao getArmaduraEquipada() { return armaduraEquipada; }
-    public void setArmaduraEquipada(ItemProtecao armaduraEquipada) { this.armaduraEquipada = armaduraEquipada; } // Corrigido
+    public void setArmaduraEquipada(ItemProtecao armaduraEquipada) { this.armaduraEquipada = armaduraEquipada; }
 
     public List<Item> getInventario() { return inventario; }
     public void setInventario(List<Item> inventario) { this.inventario = inventario; }

@@ -3,19 +3,32 @@ package personagens.inimigos;
 import personagens.Personagem;
 import java.util.Random;
 
+/**
+ * Classe que representa o chefe de fase do jogo (Boss).
+ * Ele possui mecânicas avançadas de combate, incluindo pontos de escudo recarregáveis,
+ * um medidor para disparar um ataque especial supremo e um modo de fúria passivo.
+ * * @author Rafael
+ */
 public class InimigoBoss extends Inimigo {
     private int escudoMax;
     private int escudoAtual;
-    private int turnoParaEspecial; // Contador para controlar quando ele usa o "Ultimate"
+    private int turnoParaEspecial;
     private boolean emFuria;
     private Random random;
 
-    // Construtor do Boss: Note que ele pede status bem mais altos!
+    /**
+     * Construtor para inicializar o Boss com atributos elevados de vida e dano.
+     * O escudo nasce automaticamente cheio com 100 pontos de capacidade.
+     * * @param nome            Nome do chefe.
+     * @param vidaMaxima      Total de vida máxima dele.
+     * @param vidaAtual       Vida com que ele inicia o combate.
+     * @param danoBase        Dano padrão do ataque físico dele.
+     * @param dracmasDropadas Quantidade de moedas deixadas como recompensa ao ser derrotado.
+     */
     public InimigoBoss(String nome, int vidaMaxima, int vidaAtual, int danoBase, int dracmasDropadas) {
-        // Repassa os 5 parâmetros obrigatoriamente para a classe mãe Inimigo
         super(nome, vidaMaxima, vidaAtual, danoBase, dracmasDropadas);
 
-        this.escudoMax = 100; // Boss tem o dobro de escudo máximo do jogador
+        this.escudoMax = 100;
         this.escudoAtual = 100;
         this.turnoParaEspecial = 0;
         this.emFuria = false;
@@ -23,20 +36,21 @@ public class InimigoBoss extends Inimigo {
     }
 
     /**
-     * A IA do Boss é muito mais inteligente e perigosa!
+     * Gerencia a IA avançada do chefe. Atualiza os medidores de turnos e fúria,
+     * obriga o uso do ataque especial a cada 3 turnos e, nos turnos comuns,
+     * escolhe entre atacar (60% de chance) ou defender e regenerar escudo (40%).
+     * * @param jogador O herói que está enfrentando o chefe.
      */
     public void executarTurno(Personagem jogador) {
         this.turnoParaEspecial++;
-        checarFuria(); // Verifica se deve ativar o modo enfurecido
+        checarFuria();
 
-        // 1. Se o contador do especial carregar, ele usa o ataque supremo obrigatoriamente!
         if (this.turnoParaEspecial >= 3) {
             usarAtaqueEspecial(jogador);
-            this.turnoParaEspecial = 0; // Reseta o carregamento
+            this.turnoParaEspecial = 0;
             return;
         }
 
-        // 2. Se não for o turno do especial, ele decide entre atacar normal ou recuperar escudo
         int escolha = random.nextInt(100);
 
         if (escolha < 60) {
@@ -46,9 +60,13 @@ public class InimigoBoss extends Inimigo {
         }
     }
 
+    /**
+     * Executa o ataque básico do chefe. Se o Boss estiver abaixo de 50% de vida,
+     * o modo de fúria adiciona automaticamente +10 pontos de dano bruto ao golpe.
+     * * @param alvo O herói que vai sofrer o ataque.
+     */
     @Override
     public void atacar(Personagem alvo) {
-        // Se estiver em fúria, o dano base dele ganha +10 de bônus
         int danoEfetivo = getDanoBase();
         if (this.emFuria) {
             danoEfetivo += 10;
@@ -61,31 +79,38 @@ public class InimigoBoss extends Inimigo {
     }
 
     /**
-     * O Ataque Especial do Boss (Ignora parte da defesa ou causa dano em área/crítico)
+     * Dispara a habilidade suprema carregada do chefe, causando
+     * o dobro do valor do seu dano base diretamente contra o herói.
+     * * @param alvo O herói que receberá o golpe crítico.
      */
     public void usarAtaqueEspecial(Personagem alvo) {
         System.out.println("\n⚡ [HABILIDADE SUPREMA] -> " + getNome() + " está conjurando o golpe apocalíptico!");
-        int danoEspecial = getDanoBase() * 2; // Causa o DOBRO de dano
+        int danoEspecial = getDanoBase() * 2;
         alvo.receberDano(danoEspecial);
     }
 
+    /**
+     * Faz o chefe erguer as defesas, recuperando 25 pontos de escudo atual
+     * sem ultrapassar o limite máximo da sua barra de postura.
+     */
     @Override
     public void defender() {
-        System.out.println("\n🛡️ [TURNO DO BOSS] -> " + getNome() + " ergue suas defesas e regenera sua postura!");
-        this.escudoAtual += 25; // Recupera muito mais escudo que um monstro comum
+        this.escudoAtual += 25;
         if (this.escudoAtual > this.escudoMax) {
             this.escudoAtual = this.escudoMax;
         }
+        System.out.println("\n🛡️ [TURNO DO BOSS] -> " + getNome() + " ergue suas defesas e regenerou 25 de escudo! Escudo Atual: [" + this.escudoAtual + "/" + this.escudoMax + "]");
     }
 
     /**
-     * O Boss possui escudo, então a lógica de receber dano dele é idêntica à do Jogador!
+     * Processa a redução de pontos vitais sofrida pelo chefe.
+     * Os pontos de escudo absorvem o impacto primeiro e o dano restante perfura a vida.
+     * * @param danoBruto O valor total do dano enviado pelo jogador.
      */
     @Override
     public void receberDano(int danoBruto) {
         int danoFinal = danoBruto;
 
-        // Se o Boss tiver escudo ativo, o escudo absorve primeiro
         if (this.escudoAtual > 0) {
             if (danoFinal <= this.escudoAtual) {
                 this.escudoAtual -= danoFinal;
@@ -98,7 +123,6 @@ public class InimigoBoss extends Inimigo {
             }
         }
 
-        // O dano que sobrou vai para a vida
         if (danoFinal > 0) {
             int novaVida = getVidaAtual() - danoFinal;
             setVidaAtual(novaVida);
@@ -106,9 +130,6 @@ public class InimigoBoss extends Inimigo {
         }
     }
 
-    /**
-     * Método interno para verificar se o Boss entrou em modo de fúria
-     */
     private void checarFuria() {
         if (!this.emFuria && getVidaAtual() <= (getVidaMaxima() / 2)) {
             this.emFuria = true;
@@ -116,7 +137,6 @@ public class InimigoBoss extends Inimigo {
         }
     }
 
-    // --- GETTERS EXTRA CASO PRECISE NO GERENCIADOR ---
     public int getEscudoAtual() { return escudoAtual; }
     public int getEscudoMax() { return escudoMax; }
     public boolean isEmFuria() { return emFuria; }
