@@ -341,7 +341,7 @@ public class GerenciadorJogo {
                     break;
 
                 default:
-                    System.out.println("❌ Opção inválida!");
+                    System.out.println(" Opção inválida!");
                     break;
             }
         }
