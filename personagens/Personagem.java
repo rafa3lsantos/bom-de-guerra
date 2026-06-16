@@ -8,7 +8,7 @@ import interfaces.Combatente;
  * nome, controle de vida e saibam lutar.
  * * @author Rafael
  */
-public abstract class Personagem implements Combatente {
+public abstract class Personagem implements Combatente, java.io.Serializable {
     private String nome;
     private int vidaMaxima;
     private int vidaAtual;

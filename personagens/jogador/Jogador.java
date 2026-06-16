@@ -43,7 +43,7 @@ public class Jogador extends Personagem {
         this.armaEquipada = armaEquipada;
         this.armaduraEquipada = armaduraEquipada;
         this.inventario = inventario;
-        this.forcaBase = 10;
+        this.forcaBase = 30;
         this.inventario = new ArrayList<>(); // Inicializa a lista vazia
     }
 
@@ -92,7 +92,7 @@ public class Jogador extends Personagem {
         }
 
         double reducao = danoBruto * (percentualDefesa / 100.0);
-        int danoFinal = danoBruto - (int)reducao;
+        int danoFinal = danoBruto - (int) reducao;
 
         InterfaceUsuario.exibirRelatorioDano(danoBruto, percentualDefesa, (int) reducao, danoFinal);
 

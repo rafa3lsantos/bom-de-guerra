@@ -2,6 +2,7 @@ package itens;
 
 import personagens.jogador.Jogador;
 import excecoes.InventarioCheioException;
+import excecoes.SaldoInsuficienteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +56,9 @@ public class Mercador {
      * Checa se o índice é válido, se o herói tem dinheiro e se tem espaço na bolsa.
      * * @param jogador    O herói que está comprando.
      * @param indiceItem O número do item escolhido na lista do estoque.
+     * @throws SaldoInsuficienteException Caso o jogador não tenha Dracmas suficientes para o item.
      */
-    public void comprarItem(Jogador jogador, int indiceItem) {
+    public void comprarItem(Jogador jogador, int indiceItem) throws SaldoInsuficienteException {
         if(indiceItem < 0 || indiceItem >= this.estoque.size()) {
             System.out.println("\n❌ [LOJA] -> Opção inválida! Escolha um índice válido do estoque.");
             return;
@@ -64,9 +66,9 @@ public class Mercador {
 
         Item itemDesejado = this.estoque.get(indiceItem);
 
+        // AQUI ENTRA A EXCEÇÃO: Bloqueia a compra estourando o erro caso falte dinheiro
         if(jogador.obterSaldoDracmas() < itemDesejado.getPreco()) {
-            System.out.println("\n❌ [LOJA] -> Dracmas insuficientes! Você precisa de " + itemDesejado.getPreco() + " Dracmas.");
-            return;
+            throw new SaldoInsuficienteException("Você precisa de " + itemDesejado.getPreco() + " Dracmas para comprar '" + itemDesejado.getNome() + "'.");
         }
 
         try {
@@ -124,7 +126,6 @@ public class Mercador {
             System.out.println(e.getMessage());
         }
     }
-
 
     public String getNome() {
         return nome;

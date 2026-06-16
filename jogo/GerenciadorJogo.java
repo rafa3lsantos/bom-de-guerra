@@ -4,6 +4,7 @@ import enums.TipoConsumivel;
 import enums.TipoGenero;
 import enums.TipoRaridade;
 import excecoes.InventarioCheioException;
+import excecoes.SaldoInsuficienteException;
 import itens.*;
 import personagens.inimigos.Inimigo;
 import personagens.inimigos.InimigoBoss;
@@ -34,14 +35,33 @@ public class GerenciadorJogo {
     }
 
     public void iniciarJogo () throws InventarioCheioException {
-        exibirIntroducao ();
-        inicializarJogador ();
+        exibirIntroducao();
 
-        while (jogoRodando && player.getVidaAtual() > 0) {
-            menuPrincipal ();
+        // TENTA CARREGAR O JOGO AQUI 👇
+        Jogador saveAntigo = GerenciadorArquivo.carregarJogo();
+
+        if (saveAntigo != null) {
+            System.out.println("[1] Continuar de onde parou (Herói: " + saveAntigo.getNome() + ")");
+            System.out.println("[2] Começar uma Nova Jornada");
+            System.out.print("Escolha: ");
+            int opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            if (opcao == 1) {
+                this.player = saveAntigo;
+                inicializarMercador(); // Só carrega o mercador e pula a criação
+            } else {
+                inicializarJogador(); // Cria do zero
+            }
+        } else {
+            inicializarJogador(); // Não tem save, cria do zero direto
         }
 
-        exibirFimDeJogo ();
+        while (jogoRodando && player.getVidaAtual() > 0) {
+            menuPrincipal();
+        }
+
+        exibirFimDeJogo();
     }
 
     private void exibirIntroducao() {
@@ -93,9 +113,11 @@ public class GerenciadorJogo {
     }
 
     private void menuPrincipal() throws InventarioCheioException {
-        System.out.println("\n[1] Explorar as Ruínas (Combate)");
+        System.out.println("\n--- MENU PRINCIPAL ---");
+        System.out.println("[1] Explorar as Ruínas (Combate)");
         System.out.println("[2] Olhar Bolsa (Inventário)");
-        System.out.println("[3] Sair do Jogo");
+        System.out.println("[3] Salvar o Progresso"); // 👇 OPÇÃO NOVA!
+        System.out.println("[4] Sair do Jogo");
         System.out.print("Escolha: ");
         int escolha = scanner.nextInt();
         scanner.nextLine();
@@ -108,7 +130,15 @@ public class GerenciadorJogo {
                 gerenciarInventario();
                 break;
             case 3:
+                // 👇 CHAMA O SALVAMENTO AQUI
+                GerenciadorArquivo.salvarJogo(this.player);
+                break;
+            case 4:
+                System.out.println("Saindo... Que os deuses o acompanhem!");
                 jogoRodando = false;
+                break;
+            default:
+                System.out.println("Opção inválida!");
                 break;
         }
     }
@@ -194,21 +224,13 @@ public class GerenciadorJogo {
 
             if (acao == 1) {
                 player.atacar(inimigoAtual);
-
-                int danoDoJogador = 10; // Força base
-                if (player.getArmaEquipada() != null) {
-                    danoDoJogador += player.getArmaEquipada().getDanoBonus();
-                }
-                inimigoAtual.receberDano(danoDoJogador);
-
             } else {
                 player.defender();
             }
 
             if (inimigoAtual.getVidaAtual() > 0) {
                 System.out.println("\n--- TURNO DO INIMIGO ---");
-                System.out.println(inimigoAtual.getNome() + " contra-ataca!");
-                player.receberDano(inimigoAtual.getDanoBase());
+                inimigoAtual.executarTurno(player);
             }
         }
 
@@ -292,7 +314,14 @@ public class GerenciadorJogo {
                     if (opcaoCompra == mercador.getEstoque().size()) {
                         break; // Volta pro menu da loja
                     }
-                    mercador.comprarItem(player, opcaoCompra);
+
+                    // 🔥 Protegendo a chamada com try-catch para capturar a nova exceção
+                    try {
+                        mercador.comprarItem(player, opcaoCompra);
+                    } catch (SaldoInsuficienteException e) {
+                        // Mostra a mensagem amigável que definimos lá no Mercador
+                        System.out.println("\n❌ [NEGÓCIO RECUSADO] -> " + e.getMessage());
+                    }
                     break;
 
                 case 2:
@@ -503,8 +532,29 @@ public class GerenciadorJogo {
         }
 
         for (int i = 0; i < itensExibidos.size(); i++) {
-            System.out.println("[" + i + "] " + itensExibidos.get(i).getNome());
+            Item item = itensExibidos.get(i);
+            String statusExtra = "";
+
+            // Checa se o item atual é uma Arma
+            if (item instanceof ItemAtaque) {
+                ItemAtaque arma = (ItemAtaque) item;
+                statusExtra = " [Dano Bônus: +" + arma.getDanoBonus() + "]";
+            }
+            // Checa se o item atual é uma Armadura
+            else if (item instanceof ItemProtecao) {
+                ItemProtecao armadura = (ItemProtecao) item;
+                statusExtra = " [Proteção: " + armadura.getValorDefesa() + "%]";
+            }
+            // Checa se o item atual é um Consumível (Poção)
+            else if (item instanceof ItemConsumivel) {
+                ItemConsumivel consumivel = (ItemConsumivel) item;
+                statusExtra = " [Regenera: +" + consumivel.getValorRecuperacao() + "]";
+            }
+
+            // Imprime o índice, o nome e o status extra que descobrimos acima
+            System.out.println("[" + i + "] " + item.getNome() + statusExtra);
         }
+
         System.out.println("[" + itensExibidos.size() + "] Voltar ao menu anterior");
         System.out.println("=======================================================================");
 

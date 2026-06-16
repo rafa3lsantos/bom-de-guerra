@@ -11,8 +11,6 @@ import java.util.Random;
  * * @author Rafael
  */
 public class InimigoComum extends Inimigo {
-    private int danoBase;
-    private int dracmasDropadas;
     private boolean defendendo = false;
     private Random random;
 
@@ -55,7 +53,8 @@ public class InimigoComum extends Inimigo {
     public void atacar(Personagem alvo) {
         System.out.println("\n⚔️ [TURNO DO INIMIGO] -> " + getNome() + " avança furioso para atacar!");
 
-        alvo.receberDano(this.danoBase);
+        // CORREÇÃO: Usar o getter para pegar a variável preenchida na classe mãe!
+        alvo.receberDano(getDanoBase());
     }
 
     /**
@@ -88,13 +87,5 @@ public class InimigoComum extends Inimigo {
         setVidaAtual(novaVida);
 
         System.out.println("💥 " + getNome() + " sofreu " + danoFinal + " de dano!");
-    }
-
-    public int getDanoBase() {
-        return danoBase;
-    }
-
-    public int getDracmasDropadas() {
-        return dracmasDropadas;
     }
 }

@@ -8,7 +8,7 @@ import personagens.jogador.Jogador;
  * ou consumível que exista no universo do jogo.
  * * @author Rafaela
  */
-public abstract class Item {
+public abstract class Item implements java.io.Serializable {
     private String nome;
     private int preco;
     private TipoRaridade raridade;
