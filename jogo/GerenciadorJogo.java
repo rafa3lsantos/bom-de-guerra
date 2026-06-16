@@ -6,6 +6,7 @@ import enums.TipoRaridade;
 import excecoes.InventarioCheioException;
 import itens.*;
 import personagens.inimigos.Inimigo;
+import personagens.inimigos.InimigoBoss;
 import personagens.inimigos.InimigoComum;
 import personagens.jogador.Jogador;
 
@@ -17,14 +18,22 @@ public class GerenciadorJogo {
     private Inimigo inimigoAtual;
     private Scanner scanner;
     private boolean jogoRodando;
+    private Mercador mercador;
+    private int faseAtual;
+    private int monstrosDerrotadosNaFase;
+
 
 
     public GerenciadorJogo () {
         this.scanner = new Scanner(System.in);
         this.jogoRodando = true;
+        this.mercador = new Mercador("Hermes");
+        this.faseAtual = 1;
+        this.monstrosDerrotadosNaFase = 0;
+
     }
 
-    public void iniciarJogo () {
+    public void iniciarJogo () throws InventarioCheioException {
         exibirIntroducao ();
         inicializarJogador ();
 
@@ -56,6 +65,15 @@ public class GerenciadorJogo {
         scanner.nextLine();
     }
 
+    private void inicializarMercador() {
+        mercador.addEstoque(new ItemConsumivel("Poção de Vida", TipoRaridade.COMUM, 40, TipoConsumivel.CURA_VIDA ));
+        mercador.addEstoque(new ItemConsumivel("Poção de Escudo", TipoRaridade.COMUM, 35, TipoConsumivel.CURA_ESCUDO));
+        mercador.addEstoque(new ItemAtaque("Espada de Ouro", TipoRaridade.RARO, 18));
+        mercador.addEstoque(new ItemAtaque("Lança Olímpica", TipoRaridade.EPICO, 25));
+        mercador.addEstoque(new ItemProtecao("Armadura de Atena", TipoRaridade.EPICO, 25));
+        mercador.addEstoque(new ItemProtecao("Escudo Divino", TipoRaridade.LENDARIO, 35));
+    }
+
     private void inicializarJogador() {
         System.out.println("\n--- Criação de Personagem ---");
         System.out.print("Digite o nome do seu Semideus: ");
@@ -71,9 +89,10 @@ public class GerenciadorJogo {
         System.out.println("\nHerói " + player.getNome() + " criado com sucesso!");
         System.out.println("Você começa com uma " + espadaBronze.getNome() + " equipada.");
         System.out.println("=======================================================================");
+        inicializarMercador();
     }
 
-    private void menuPrincipal() {
+    private void menuPrincipal() throws InventarioCheioException {
         System.out.println("\n[1] Explorar as Ruínas (Combate)");
         System.out.println("[2] Olhar Bolsa (Inventário)");
         System.out.println("[3] Sair do Jogo");
@@ -94,7 +113,7 @@ public class GerenciadorJogo {
         }
     }
 
-    private void gerarProximoCombate() {
+    private void gerarProximoCombate() throws InventarioCheioException {
 
         ArrayList<String> cenarios = new ArrayList<>();
 
@@ -122,67 +141,232 @@ public class GerenciadorJogo {
         String cenario = cenarios.get( (int)(Math.random() * cenarios.size()) );
 
         System.out.println("\n=======================================================================");
-        System.out.println(cenario);
+        System.out.println(cenario + " [Fase " + faseAtual + " - Progresso: " + monstrosDerrotadosNaFase + "/4]");
         System.out.println("=======================================================================");
 
-        ArrayList<Inimigo> monstros = new ArrayList<>();
 
-        monstros.add(new InimigoComum("Minotauro de Creta", 60, 60, 12, 20));
-        monstros.add(new InimigoComum("Ciclope Forjador", 80, 80, 15, 22));
-        monstros.add(new InimigoComum("Harpia Sombria", 50, 50, 10, 15));
-        monstros.add(new InimigoComum("Esqueleto de Esparta", 55, 55, 11, 14));
-        monstros.add(new InimigoComum("Górgona Menor", 65, 65, 13, 18));
-        monstros.add(new InimigoComum("Centauro Corrompido", 70, 70, 14, 20));
-        monstros.add(new InimigoComum("Leão de Nemeia Jovem", 90, 90, 16, 25));
-        monstros.add(new InimigoComum("Cão Infernal", 75, 75, 15, 21));
-        monstros.add(new InimigoComum("Sátiro Enlouquecido", 45, 45, 9, 12));
-        monstros.add(new InimigoComum("Soldado do Tártaro", 85, 85, 17, 24));
-        monstros.add(new InimigoComum("Quimera Filhote", 95, 95, 18, 28));
-        monstros.add(new InimigoComum("Serpente do Estige", 60, 60, 13, 17));
-        monstros.add(new InimigoComum("Guardião de Delfos", 100, 100, 20, 30));
-        monstros.add(new InimigoComum("Mirmidão Amaldiçoado", 80, 80, 16, 23));
-        monstros.add(new InimigoComum("Dracenae Venenosa", 70, 70, 15, 22));
+        if (monstrosDerrotadosNaFase < 4) {
+            ArrayList<Inimigo> monstros = new ArrayList<>();
+            monstros.add(new InimigoComum("Minotauro de Creta", 60, 60, 12, 20));
+            monstros.add(new InimigoComum("Ciclope Forjador", 80, 80, 15, 22));
+            monstros.add(new InimigoComum("Harpia Sombria", 50, 50, 10, 15));
+            monstros.add(new InimigoComum("Esqueleto de Esparta", 55, 55, 11, 14));
+            monstros.add(new InimigoComum("Górgona Menor", 65, 65, 13, 18));
+            monstros.add(new InimigoComum("Centauro Corrompido", 70, 70, 14, 20));
+            monstros.add(new InimigoComum("Leão de Nemeia Jovem", 90, 90, 16, 25));
+            monstros.add(new InimigoComum("Cão Infernal", 75, 75, 15, 21));
 
-        inimigoAtual = monstros.get( (int)(Math.random() * monstros.size()) );
+            inimigoAtual = monstros.get( (int)(Math.random() * monstros.size()) );
+            System.out.println("\nUm " + inimigoAtual.getNome() + " bloqueia seu caminho!");
+        } else {
+            System.out.println("\n O CLIMA MUDA REVOLTADO... O BOSS DA FASE SE APROXIMA... ");
 
-        System.out.println("\n⚔ Um " + inimigoAtual.getNome() + " surge diante de você!");
+            switch (faseAtual) {
+                case 1:
+                    // Importe ou use o pacote correto de InimigoBoss
+                    inimigoAtual = new InimigoBoss("Medusa, a Rainha das Górgonas", 100, 90, 22, 100);
+                    break;
+                case 2:
+                    inimigoAtual = new InimigoBoss("Cérbero, o Cão do Submundo", 120, 100, 28, 200);
+                    break;
+                case 3:
+                    inimigoAtual = new InimigoBoss("Hidra de Lerna", 120, 100, 35, 300);
+                    break;
+                case 4:
+                    inimigoAtual = new InimigoBoss("CRONOS, O TITÃ DO TEMPO", 110, 90, 45, 500);
+                    break;
+            }
+            System.out.println("BOSS: " + inimigoAtual.getNome() + " surge das sombras!");
+        }
         System.out.println("Vida: " + inimigoAtual.getVidaAtual());
-        System.out.println("Dano: " + inimigoAtual.getDanoBase());
+        System.out.println("Dano Base: " + inimigoAtual.getDanoBase());
 
         executarTurnoCombate();
     }
 
-    private void executarTurnoCombate() {
+    private void executarTurnoCombate() throws InventarioCheioException {
         while (player.getVidaAtual() > 0 && inimigoAtual.getVidaAtual() > 0) {
             System.out.println("\n--- SEU TURNO ---");
             System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)");
+            System.out.print("Escolha: ");
             int acao = scanner.nextInt();
             scanner.nextLine();
 
             if (acao == 1) {
                 player.atacar(inimigoAtual);
-                inimigoAtual.receberDano(20);
+
+                int danoDoJogador = 10; // Força base
+                if (player.getArmaEquipada() != null) {
+                    danoDoJogador += player.getArmaEquipada().getDanoBonus();
+                }
+                inimigoAtual.receberDano(danoDoJogador);
+
             } else {
                 player.defender();
             }
 
             if (inimigoAtual.getVidaAtual() > 0) {
                 System.out.println("\n--- TURNO DO INIMIGO ---");
-                int danoInimigo = 15;
                 System.out.println(inimigoAtual.getNome() + " contra-ataca!");
-                player.receberDano(danoInimigo);
+                player.receberDano(inimigoAtual.getDanoBase());
             }
         }
 
         if (player.getVidaAtual() <= 0) {
-            System.out.println("Você foi derrotado e sua alma foi levada ao Tártaro...");
+            System.out.println("\n Você foi derrotado e sua alma foi levada ao Tártaro...");
+            jogoRodando = false;
         } else {
-            System.out.println("Vitória! Você derrotou o " + inimigoAtual.getNome());
+            System.out.println("\n Vitória! Você derrotou o " + inimigoAtual.getNome());
+
+            int dracmasGanhas = (int) (Math.random() * 21) + 15; // de 15 a 35 dracmas
+            System.out.println("💰 Você coletou " + dracmasGanhas + " Dracmas do corpo do inimigo.");
+            player.adquirirItemInventario(new Moeda(dracmasGanhas));
+
             try {
-                droparItemOlimpico();
+                oferecerEquipamentoOlimpico();
             } catch (InventarioCheioException e) {
-                throw new RuntimeException(e);
+                System.out.println("Bolsa cheia, o item extra caiu no chão.");
             }
+
+            if (monstrosDerrotadosNaFase < 4) {
+                monstrosDerrotadosNaFase++;
+                System.out.println("Progresso da Fase " + faseAtual + ": " + monstrosDerrotadosNaFase + "/4 monstros comuns derrotados.");
+            } else {
+                // Era o Boss da fase!
+                System.out.println("\n PARABÉNS! Você derrotou o Chefe da Fase " + faseAtual + "!");
+
+                if (faseAtual == 4) {
+                    System.out.println("CRONOS FOI APRISIONADO NOVAMENTE! VOCÊ SALVOU O OLIMPO! ");
+                    jogoRodando = false;
+                    return;
+                }
+
+                player.setVidaAtual(player.getVidaMaxima());
+                player.setEscudoAtual(player.getEscudoMax());
+                System.out.println(" Os deuses purificaram suas feridas! Vida e Escudo totalmente restaurados! ");
+
+                abrirLojaDoMercador();
+
+                faseAtual++;
+                monstrosDerrotadosNaFase = 0;
+                System.out.println("\n🔮 Uma nova passagem se abre... Você entrou na FASE " + faseAtual + "!");
+            }
+        }
+    }
+
+    private void abrirLojaDoMercador() {
+        System.out.println("\n=======================================================================");
+        System.out.println(" MERCADOR " + mercador.getNome().toUpperCase() + " SE APROXIMA VOANDO");
+        System.out.println("=======================================================================");
+        System.out.println("\"Saudações, Semideus! Deseja negociar provisões do Olimpo?\"");
+
+        for (Item i : mercador.getEstoque()) {
+            if (i.getPreco() <= 0) {
+                i.setPreco(calcularPrecoItem(i));
+            }
+        }
+
+        boolean naLoja = true;
+        while (naLoja) {
+            System.out.println("\n=======================================================================");
+            System.out.println(" Seu Saldo: " + player.obterSaldoDracmas() + " Dracmas |  Bolsa: " + player.getInventario().size() + "/20");
+            System.out.println("=======================================================================");
+            System.out.println("[1] Ver Itens à Venda (Comprar)");
+            System.out.println("[2] Oferecer Itens da sua Bolsa (Vender)");
+            System.out.println("[3] Sair da Loja e seguir viagem");
+            System.out.println("=======================================================================");
+            System.out.print("O que deseja fazer, Herói? ");
+            int menuLoja = scanner.nextInt();
+            scanner.nextLine(); // limpar buffer
+
+            switch (menuLoja) {
+                case 1:
+                    // --- SUBMENU DE COMPRA ---
+                    mercador.exibirEstoque();
+                    System.out.println("[" + mercador.getEstoque().size() + "] Voltar ao menu anterior");
+                    System.out.println("----------------------------------------");
+                    System.out.print("Escolha o número do item para COMPRAR: ");
+                    int opcaoCompra = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (opcaoCompra == mercador.getEstoque().size()) {
+                        break; // Volta pro menu da loja
+                    }
+                    mercador.comprarItem(player, opcaoCompra);
+                    break;
+
+                case 2:
+                    ArrayList<Item> itensParaVender = new ArrayList<>();
+                    for (Item item : player.getInventario()) {
+                        if (!(item instanceof Moeda)) {
+                            itensParaVender.add(item);
+                        }
+                    }
+
+                    if (itensParaVender.isEmpty()) {
+                        System.out.println("\n Você não tem equipamentos ou poções na bolsa para vender!");
+                        break;
+                    }
+
+                    System.out.println("\n💰 --- SEUS ITENS PARA VENDA (O Mercador paga metade do preço) ---");
+                    for (int i = 0; i < itensParaVender.size(); i++) {
+                        Item itemBolsa = itensParaVender.get(i);
+                        // Define preço se não tiver
+                        if (itemBolsa.getPreco() <= 0) { itemBolsa.setPreco(calcularPrecoItem(itemBolsa)); }
+
+                        int valorVenda = itemBolsa.getPreco() / 2;
+                        System.out.println("   [" + i + "] " + itemBolsa.getNome() + " -> Hermes paga: " + valorVenda + " Dracmas");
+                    }
+                    System.out.println("   [" + itensParaVender.size() + "] Voltar ao menu anterior");
+                    System.out.println("-----------------------------------------------------------------");
+                    System.out.print("Escolha o número do item que deseja VENDER: ");
+                    int opcaoVenda = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (opcaoVenda == itensParaVender.size()) {
+                        break; // Volta pro menu da loja
+                    }
+
+                    if (opcaoVenda >= 0 && opcaoVenda < itensParaVender.size()) {
+                        Item itemEscolhido = itensParaVender.get(opcaoVenda);
+                        mercador.venderItem(player, itemEscolhido);
+                    } else {
+                        System.out.println(" Opção inválida!");
+                    }
+                    break;
+
+                case 3:
+                    System.out.println("\n\"Que os ventos do Olimpo guiem seus passos!\" - Hermes desaparece em um rastro dourado.");
+                    naLoja = false;
+                    break;
+
+                default:
+                    System.out.println("❌ Opção inválida!");
+                    break;
+            }
+        }
+    }
+
+    private int calcularPrecoItem(Item item) {
+        switch (item.getRaridade()) {
+            case COMUM: return 30;
+            case RARO: return 60;
+            case EPICO: return 120;
+            case LENDARIO: return 250;
+            default: return 50;
+        }
+    }
+
+    private Item clonarItemParaVenda(Item original) {
+        if (original instanceof ItemConsumivel) {
+            ItemConsumivel c = (ItemConsumivel) original;
+            return new ItemConsumivel(c.getNome(), c.getRaridade(), c.getValorRecuperacao(), c.getTipoRecuperacao());
+        } else if (original instanceof ItemAtaque) {
+            ItemAtaque a = (ItemAtaque) original;
+            return new ItemAtaque(a.getNome(), a.getRaridade(), a.getDanoBonus());
+        } else {
+            ItemProtecao p = (ItemProtecao) original;
+            return new ItemProtecao(p.getNome(), p.getRaridade(), p.getValorDefesa());
         }
     }
 
@@ -222,12 +406,17 @@ public class GerenciadorJogo {
                 System.out.println("Dica: Vá ao menu do inventário e descarte algo velho se quiser abrir espaço.");
             }
         } else {
-            System.out.println("Você desdenhou do item e o deixou apodrecer no chão da Grécia.");
+            System.out.println("Você não quis o item e o deixou apodrecer no chão da Grécia.");
         }
         System.out.println("=======================================================================");
     }
 
-    private void droparItemOlimpico() throws InventarioCheioException {
+    private void oferecerEquipamentoOlimpico() throws InventarioCheioException {
+
+       // if (Math.random() > 0.50) {
+       //     System.out.println("\nO monstro não carregava nenhum equipamento extra...");
+       //     return;
+        // }
 
         Item itemGerado = null;
 
@@ -272,18 +461,18 @@ public class GerenciadorJogo {
 
         double chanceCategoria = Math.random();
 
-        if (chanceCategoria < 0.25) {
-            int[] valoresMoeda = {10,20,30,40,50,60,70,80,90,100};
-            int indice = (int) (Math.random() * valoresMoeda.length);
-            itemGerado = new Moeda(valoresMoeda[indice]);
-        } else if (chanceCategoria < 0.50) {
-            itemGerado = consumiveis.get( (int) (Math.random() * consumiveis.size()) );
-        } else if (chanceCategoria < 0.75) {
-            itemGerado = armas.get( (int) (Math.random() * armas.size()) );
+        if (chanceCategoria < 0.50) {
+            itemGerado = consumiveis.get((int) (Math.random() * consumiveis.size()));
+        } else if (chanceCategoria < 0.80) {
+            itemGerado = armas.get((int) (Math.random() * armas.size()));
         } else {
-            itemGerado = protecoes.get( (int) (Math.random() * protecoes.size()) );
+            itemGerado = protecoes.get((int) (Math.random() * protecoes.size()));
         }
 
+        // Seta um preço padrão aleatório pro item gerado (caso o jogador queira vender pro Hermes depois!)
+        if (itemGerado.getPreco() <= 0) {
+            itemGerado.setPreco(calcularPrecoItem(itemGerado));
+        }
         oferecerItemAoJogador(itemGerado);
     }
 
@@ -292,34 +481,50 @@ public class GerenciadorJogo {
         System.out.println("                          SEU INVENTÁRIO:                                ");
         System.out.println("=======================================================================  ");
 
-        if (player.getInventario().isEmpty()) {
-            System.out.println("Sua bolsa está vazia. Vá derrotar uns monstros para conseguir itens!");
+        // 💰 MOSTRAR O SALDO DE DRACMAS NO TOPO
+        Moeda saquinho = player.buscarSaquinhoMoedas();
+        int saldoDracmas = (saquinho != null) ? saquinho.getQuantidade() : 0;
+        System.out.println("💰 Saldo Atual: " + saldoDracmas + " Dracmas");
+        System.out.println("=======================================================================");
+
+        if (player.getInventario().isEmpty() || (player.getInventario().size() == 1 && saquinho != null)) {
+            System.out.println("Sua bolsa não possui equipamentos ou poções.");
             System.out.println("=======================================================================");
             return;
         }
 
-        for (int i = 0; i < player.getInventario().size(); i++) {
-            Item item = player.getInventario().get(i);
-            System.out.println("[" + i + "] " + item.getNome());
+        // LISTAR APENAS ITENS QUE NÃO SEJAM MOEDA
+        // Para manter os índices batendo certinho com a escolha do usuário, criamos uma lista auxiliar:
+        ArrayList<Item> itensExibidos = new ArrayList<>();
+        for (Item item : player.getInventario()) {
+            if (!(item instanceof Moeda)) {
+                itensExibidos.add(item);
+            }
         }
-        System.out.println("[" + player.getInventario().size() + "] Voltar ao menu anterior");
+
+        for (int i = 0; i < itensExibidos.size(); i++) {
+            System.out.println("[" + i + "] " + itensExibidos.get(i).getNome());
+        }
+        System.out.println("[" + itensExibidos.size() + "] Voltar ao menu anterior");
         System.out.println("=======================================================================");
 
         System.out.print("Escolha o número do item para interagir: ");
         int indiceItem = scanner.nextInt();
         scanner.nextLine();
 
-        if (indiceItem == player.getInventario().size()) {
+        if (indiceItem == itensExibidos.size()) {
             System.out.println("Fechando inventário...");
             return;
         }
 
-        if (indiceItem < 0 || indiceItem >= player.getInventario().size()) {
+        if (indiceItem < 0 || indiceItem >= itensExibidos.size()) {
             System.out.println("Esse item não existe na sua bolsa.");
             return;
         }
 
-        Item itemEscolhido = player.getInventario().get(indiceItem);
+        // Agora pegamos o item correto da lista filtrada
+        Item itemEscolhido = itensExibidos.get(indiceItem);
+
 
         System.out.println("\nVocê selecionou: " + itemEscolhido.getNome());
         System.out.println("[1] Usar (Se for Consumível/Poção)");
@@ -361,7 +566,7 @@ public class GerenciadorJogo {
     }
 
     private void exibirFimDeJogo() {
-        System.out.println("\nObrigado por jogar Crônicas do Olimpo!");
+        System.out.println("\nObrigado por jogar Bom De Guerra!");
     }
 
 }
