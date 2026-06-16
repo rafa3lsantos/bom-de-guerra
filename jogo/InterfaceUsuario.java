@@ -70,7 +70,7 @@ public class InterfaceUsuario {
      */
     public static void atacou(boolean possuiArma, String nome, ItemAtaque nomeArmaEquipada){
         if(possuiArma) {
-            System.out.println(nome + " atacou com " + nomeArmaEquipada + "!");
+            System.out.println(nome + " atacou com " + nomeArmaEquipada.getNome() + "!");
         } else {
             System.out.println(nome + " atacou com os " + nomeArmaEquipada);
         }
