@@ -130,6 +130,11 @@ public class InimigoBoss extends Inimigo {
         }
     }
 
+    /**
+     * Verifica a física do chefe. Caso a vida atual
+     * caia para 50% ou menos do total, ativa de forma permanente o estado
+     * de fúria, aumentando a potência dos ataques físicos básicos.
+     */
     private void checarFuria() {
         if (!this.emFuria && getVidaAtual() <= (getVidaMaxima() / 2)) {
             this.emFuria = true;

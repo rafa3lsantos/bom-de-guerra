@@ -38,10 +38,8 @@ public class Inimigo extends Personagem {
         int escolha = random.nextInt(100);
 
         if (escolha < 70) {
-            // 70% de chance de atacar
             this.atacar(jogador);
         } else {
-            // 30% de chance de defender
             this.defender();
         }
     }
@@ -63,7 +61,6 @@ public class Inimigo extends Personagem {
     @Override
     public void defender() {
         System.out.println("\n🛡️ [TURNO DO INIMIGO] -> " + getNome() + " rosnou e adotou uma postura defensiva!");
-        // Aqui você pode dar escudo para o inimigo ou ativar um modificador de defesa
     }
 
     /**

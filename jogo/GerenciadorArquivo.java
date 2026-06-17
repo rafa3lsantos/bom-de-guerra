@@ -38,7 +38,7 @@ public class GerenciadorArquivo {
         File arquivo = new File(NOME_ARQUIVO);
 
         if (!arquivo.exists()) {
-            return null; // Não tem save anterior
+            return null;
         }
 
         // Tenta abrir o arquivo para leitura (FileInputStream) e reconstruir o objeto (ObjectInputStream)
