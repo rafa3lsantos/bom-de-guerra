@@ -53,7 +53,6 @@ public class InimigoComum extends Inimigo {
     public void atacar(Personagem alvo) {
         System.out.println("\n⚔️ [TURNO DO INIMIGO] -> " + getNome() + " avança furioso para atacar!");
 
-        // CORREÇÃO: Usar o getter para pegar a variável preenchida na classe mãe!
         alvo.receberDano(getDanoBase());
     }
 
@@ -64,7 +63,7 @@ public class InimigoComum extends Inimigo {
     @Override
     public void defender() {
         System.out.println("\n🛡️ [TURNO DO INIMIGO] -> " + getNome() + " adotou uma postura defensiva para mitigar o próximo impacto!");
-        this.defendendo = true; // Ativa a defesa para o próximo turno
+        this.defendendo = true;
     }
 
     /**

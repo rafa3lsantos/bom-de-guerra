@@ -14,26 +14,47 @@ import personagens.jogador.Jogador;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Classe controladora central do jogo (Engine).
+ * Responsável por gerenciar o loop principal, o fluxo de fases, a transição
+ * de turnos em combates, interações com o mercador e persistência de dados.
+ * * @author Rafaela
+ */
 public class GerenciadorJogo {
+    /** Instância do herói controlado pelo usuário. */
     private Jogador player;
+    /** O oponente ativo no combate atual. */
     private Inimigo inimigoAtual;
+    /** Leitor para capturar as entradas de dados do teclado no console. */
     private Scanner scanner;
+    /** Flag de controle que mantém o loop do jogo ativo. */
     private boolean jogoRodando;
+    /** O comerciante divino ativo para compra e venda de itens. */
     private Mercador mercador;
+    /** O identificador do estágio atual da jornada no Olimpo. */
     private int faseAtual;
+    /** Contador de capangas derrotados no estágio vigente. */
     private int monstrosDerrotadosNaFase;
 
-
-
+    /**
+     * Construtor padrão do gerenciador.
+     * Inicializa os leitores de sistema, define o estado ativo do jogo,
+     * define o mercador Hermes e reseta o progresso para a primeira fase.
+     */
     public GerenciadorJogo () {
         this.scanner = new Scanner(System.in);
         this.jogoRodando = true;
         this.mercador = new Mercador("Hermes");
         this.faseAtual = 1;
         this.monstrosDerrotadosNaFase = 0;
-
     }
 
+    /**
+     * Inicializa a história inicial e tenta ler um progresso salvo.
+     * Caso um arquivo válido seja encontrado, oferece a opção de carregamento.
+     * Controla o loop mestre baseado na integridade física do jogador.
+     * * @throws InventarioCheioException Caso o jogador tente adicionar itens com o inventário lotado.
+     */
     public void iniciarJogo () throws InventarioCheioException {
         exibirIntroducao();
 
@@ -64,6 +85,9 @@ public class GerenciadorJogo {
         exibirFimDeJogo();
     }
 
+    /**
+     * Imprime o texto introdutório contextualizando o enredo mitológico do jogo no console.
+     */
     private void exibirIntroducao() {
         System.out.println("=======================================================================");
         System.out.println("                     BOM DE GUERRA: O DESPERTAR                   ");
@@ -85,6 +109,10 @@ public class GerenciadorJogo {
         scanner.nextLine();
     }
 
+    /**
+     * Abastece o estoque inicial da loja do Mercador com poções, armas e armaduras
+     * de diferentes categorias de raridade.
+     */
     private void inicializarMercador() {
         mercador.addEstoque(new ItemConsumivel("Poção de Vida", TipoRaridade.COMUM, 40, TipoConsumivel.CURA_VIDA ));
         mercador.addEstoque(new ItemConsumivel("Poção de Escudo", TipoRaridade.COMUM, 35, TipoConsumivel.CURA_ESCUDO));
@@ -94,6 +122,11 @@ public class GerenciadorJogo {
         mercador.addEstoque(new ItemProtecao("Escudo Divino", TipoRaridade.LENDARIO, 35));
     }
 
+    /**
+     * Executa a rotina de criação de personagem.
+     * Captura o nome via console, gera os equipamentos iniciais de bronze e couro,
+     * e instancia o objeto {@link Jogador} com seus status iniciais estáveis.
+     */
     private void inicializarJogador() {
         System.out.println("\n--- Criação de Personagem ---");
         System.out.print("Digite o nome do seu Semideus: ");
@@ -112,11 +145,16 @@ public class GerenciadorJogo {
         inicializarMercador();
     }
 
+    /**
+     * Apresenta o hub ou menu estrutural principal fora dos combates.
+     * Fornece navegação para exploração, gerenciamento da sacola ou salvamento de progresso.
+     * * @throws InventarioCheioException Repassada caso ocorram manipulações incorretas de itens.
+     */
     private void menuPrincipal() throws InventarioCheioException {
         System.out.println("\n--- MENU PRINCIPAL ---");
         System.out.println("[1] Explorar as Ruínas (Combate)");
         System.out.println("[2] Olhar Bolsa (Inventário)");
-        System.out.println("[3] Salvar o Progresso"); // 👇 OPÇÃO NOVA!
+        System.out.println("[3] Salvar o Progresso");
         System.out.println("[4] Sair do Jogo");
         System.out.print("Escolha: ");
         int escolha = scanner.nextInt();
@@ -130,7 +168,6 @@ public class GerenciadorJogo {
                 gerenciarInventario();
                 break;
             case 3:
-                // 👇 CHAMA O SALVAMENTO AQUI
                 GerenciadorArquivo.salvarJogo(this.player);
                 break;
             case 4:
@@ -143,6 +180,12 @@ public class GerenciadorJogo {
         }
     }
 
+    /**
+     * Sorteia uma descrição de cenário aleatória e determina o próximo inimigo do jogador.
+     * Caso o progresso de capangas derrotados seja menor que 4, instancia um monstro comum da lista;
+     * caso contrário, instancia o Chefe de Fase (Boss) correspondente ao estágio atual.
+     * * @throws InventarioCheioException Repassada se houver problemas de espaço ao iniciar sub-rotinas.
+     */
     private void gerarProximoCombate() throws InventarioCheioException {
 
         ArrayList<String> cenarios = new ArrayList<>();
@@ -193,7 +236,6 @@ public class GerenciadorJogo {
 
             switch (faseAtual) {
                 case 1:
-                    // Importe ou use o pacote correto de InimigoBoss
                     inimigoAtual = new InimigoBoss("Medusa, a Rainha das Górgonas", 100, 90, 22, 100);
                     break;
                 case 2:
@@ -214,7 +256,14 @@ public class GerenciadorJogo {
         executarTurnoCombate();
     }
 
-    private void executarTurnoCombate() throws InventarioCheioException {
+    /**
+     * Orquestra o loop interno do combate por turnos alternados.
+     * Processa as escolhas de ataque ou defesa do jogador, invoca a inteligência artificial
+     * polimórfica do monstro e gerencia as recompensas (dinheiro/drops) em caso de vitória,
+     * bem como as transições ou encerramento por fim de fase.
+     * * @throws InventarioCheioException Se a bolsa lotar ao receber Dracmas ou itens divinos.
+     */
+    private void ejecutarTurnoCombate() throws InventarioCheioException {
         while (player.getVidaAtual() > 0 && inimigoAtual.getVidaAtual() > 0) {
             System.out.println("\n--- SEU TURNO ---");
             System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)");
@@ -240,7 +289,7 @@ public class GerenciadorJogo {
         } else {
             System.out.println("\n Vitória! Você derrotou o " + inimigoAtual.getNome());
 
-            int dracmasGanhas = (int) (Math.random() * 21) + 15; // de 15 a 35 dracmas
+            int dracmasGanhas = (int) (Math.random() * 21) + 15;
             System.out.println("💰 Você coletou " + dracmasGanhas + " Dracmas do corpo do inimigo.");
             player.adquirirItemInventario(new Moeda(dracmasGanhas));
 
@@ -254,7 +303,6 @@ public class GerenciadorJogo {
                 monstrosDerrotadosNaFase++;
                 System.out.println("Progresso da Fase " + faseAtual + ": " + monstrosDerrotadosNaFase + "/4 monstros comuns derrotados.");
             } else {
-                // Era o Boss da fase!
                 System.out.println("\n PARABÉNS! Você derrotou o Chefe da Fase " + faseAtual + "!");
 
                 if (faseAtual == 4) {
@@ -276,6 +324,10 @@ public class GerenciadorJogo {
         }
     }
 
+    /**
+     * Abre a sub-rotina de comércio com o Mercador Hermes entre as transições de fase.
+     * Controla os submenus de compra (com interceptação de saldo) e venda de espólios.
+     */
     private void abrirLojaDoMercador() {
         System.out.println("\n=======================================================================");
         System.out.println(" MERCADOR " + mercador.getNome().toUpperCase() + " SE APROXIMA VOANDO");
@@ -299,11 +351,10 @@ public class GerenciadorJogo {
             System.out.println("=======================================================================");
             System.out.print("O que deseja fazer, Herói? ");
             int menuLoja = scanner.nextInt();
-            scanner.nextLine(); // limpar buffer
+            scanner.nextLine();
 
             switch (menuLoja) {
                 case 1:
-                    // --- SUBMENU DE COMPRA ---
                     mercador.exibirEstoque();
                     System.out.println("[" + mercador.getEstoque().size() + "] Voltar ao menu anterior");
                     System.out.println("----------------------------------------");
@@ -312,14 +363,12 @@ public class GerenciadorJogo {
                     scanner.nextLine();
 
                     if (opcaoCompra == mercador.getEstoque().size()) {
-                        break; // Volta pro menu da loja
+                        break;
                     }
 
-                    // 🔥 Protegendo a chamada com try-catch para capturar a nova exceção
                     try {
                         mercador.comprarItem(player, opcaoCompra);
                     } catch (SaldoInsuficienteException e) {
-                        // Mostra a mensagem amigável que definimos lá no Mercador
                         System.out.println("\n❌ [NEGÓCIO RECUSADO] -> " + e.getMessage());
                     }
                     break;
@@ -340,7 +389,6 @@ public class GerenciadorJogo {
                     System.out.println("\n💰 --- SEUS ITENS PARA VENDA (O Mercador paga metade do preço) ---");
                     for (int i = 0; i < itensParaVender.size(); i++) {
                         Item itemBolsa = itensParaVender.get(i);
-                        // Define preço se não tiver
                         if (itemBolsa.getPreco() <= 0) { itemBolsa.setPreco(calcularPrecoItem(itemBolsa)); }
 
                         int valorVenda = itemBolsa.getPreco() / 2;
@@ -353,7 +401,7 @@ public class GerenciadorJogo {
                     scanner.nextLine();
 
                     if (opcaoVenda == itensParaVender.size()) {
-                        break; // Volta pro menu da loja
+                        break;
                     }
 
                     if (opcaoVenda >= 0 && opcaoVenda < itensParaVender.size()) {
@@ -376,6 +424,11 @@ public class GerenciadorJogo {
         }
     }
 
+    /**
+     * Calcula dinamicamente o valor tabelado de um artefato baseando-se no seu multiplicador de raridade.
+     * * @param item O objeto avaliado.
+     * @return O preço base convertido em Dracmas inteiras.
+     */
     private int calcularPrecoItem(Item item) {
         switch (item.getRaridade()) {
             case COMUM: return 30;
@@ -386,6 +439,11 @@ public class GerenciadorJogo {
         }
     }
 
+    /**
+     * Realiza uma cópia profunda dos atributos de um item para processamento em transações mercantis.
+     * * @param original O objeto de origem que será duplicado.
+     * @return Uma nova instância idêntica baseada na assinatura polimórfica detectada.
+     */
     private Item clonarItemParaVenda(Item original) {
         if (original instanceof ItemConsumivel) {
             ItemConsumivel c = (ItemConsumivel) original;
@@ -399,7 +457,13 @@ public class GerenciadorJogo {
         }
     }
 
-    public void oferecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
+    /**
+     * Exibe os atributos estruturais de um item recém-coletado no mapa e oferece
+     * a opção de inseri-lo no inventário ativo do jogador.
+     * * @param itemDropado O objeto gerado no mapa ou dropado.
+     * @throws InventarioCheioException Interceptada caso a bolsa já esteja com 20 slots cheios.
+     */
+    public void ofrecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
         System.out.println("\n=======================================================================");
         System.out.println("                     VOCÊ ENCONTROU UM ITEM!                             ");
         System.out.println("=======================================================================  ");
@@ -440,17 +504,15 @@ public class GerenciadorJogo {
         System.out.println("=======================================================================");
     }
 
+    /**
+     * Sorteia aleatoriamente e gera itens temáticos inspirados no panteão grego.
+     * Divide as probabilidades dinamicamente entre consumíveis, armas ou proteções variadas.
+     * * @throws InventarioCheioException Repassada para tratamento em caso de estouro de slots na bolsa.
+     */
     private void oferecerEquipamentoOlimpico() throws InventarioCheioException {
-
-       // if (Math.random() > 0.50) {
-       //     System.out.println("\nO monstro não carregava nenhum equipamento extra...");
-       //     return;
-        // }
-
         Item itemGerado = null;
 
         ArrayList<ItemAtaque> armas = new ArrayList<>();
-
         armas.add(new ItemAtaque("Adaga de Prata de Ártemis", TipoRaridade.EPICO, 20));
         armas.add(new ItemAtaque("Lança Forjada por Hefesto", TipoRaridade.COMUM, 10));
         armas.add(new ItemAtaque("Tridente de Bronze das Marés", TipoRaridade.LENDARIO, 22));
@@ -463,7 +525,6 @@ public class GerenciadorJogo {
         armas.add(new ItemAtaque("Espada Celestial de Zeus", TipoRaridade.LENDARIO, 22));
 
         ArrayList<ItemConsumivel> consumiveis = new ArrayList<>();
-
         consumiveis.add(new ItemConsumivel("Ambrósia Restauradora", TipoRaridade.RARO, 30, TipoConsumivel.CURA_VIDA));
         consumiveis.add(new ItemConsumivel("Néctar dos Deuses", TipoRaridade.COMUM, 20, TipoConsumivel.CURA_VIDA));
         consumiveis.add(new ItemConsumivel("Essência de Ícor", TipoRaridade.RARO, 25, TipoConsumivel.CURA_ESCUDO));
@@ -476,7 +537,6 @@ public class GerenciadorJogo {
         consumiveis.add(new ItemConsumivel("Poção do Olimpo", TipoRaridade.LENDARIO, 60, TipoConsumivel.CURA_VIDA));
 
         ArrayList<ItemProtecao> protecoes = new ArrayList<>();
-
         protecoes.add(new ItemProtecao("Égide de Atena", TipoRaridade.LENDARIO, 30));
         protecoes.add(new ItemProtecao("Peitoral de Guerra de Ares", TipoRaridade.EPICO, 25));
         protecoes.add(new ItemProtecao("Capacete de Hades", TipoRaridade.RARO, 18));
@@ -498,19 +558,23 @@ public class GerenciadorJogo {
             itemGerado = protecoes.get((int) (Math.random() * protecoes.size()));
         }
 
-        // Seta um preço padrão aleatório pro item gerado (caso o jogador queira vender pro Hermes depois!)
         if (itemGerado.getPreco() <= 0) {
             itemGerado.setPreco(calcularPrecoItem(itemGerado));
         }
         oferecerItemAoJogador(itemGerado);
     }
 
+    /**
+     * Exibe o inventário do herói filtrando as moedas para indexação precisa.
+     * Utiliza polimorfismo via o operador {@code instanceof} para listar em tempo
+     * real as propriedades específicas e bônus numéricos de combate ao lado do nome de cada item.
+     * Processa comandos de descarte, consumo de poções ou troca de equipamentos.
+     */
     private void gerenciarInventario() {
         System.out.println("\n=======================================================================");
         System.out.println("                          SEU INVENTÁRIO:                                ");
         System.out.println("=======================================================================  ");
 
-        // 💰 MOSTRAR O SALDO DE DRACMAS NO TOPO
         Moeda saquinho = player.buscarSaquinhoMoedas();
         int saldoDracmas = (saquinho != null) ? saquinho.getQuantidade() : 0;
         System.out.println("💰 Saldo Atual: " + saldoDracmas + " Dracmas");
@@ -522,8 +586,6 @@ public class GerenciadorJogo {
             return;
         }
 
-        // LISTAR APENAS ITENS QUE NÃO SEJAM MOEDA
-        // Para manter os índices batendo certinho com a escolha do usuário, criamos uma lista auxiliar:
         ArrayList<Item> itensExibidos = new ArrayList<>();
         for (Item item : player.getInventario()) {
             if (!(item instanceof Moeda)) {
@@ -535,23 +597,19 @@ public class GerenciadorJogo {
             Item item = itensExibidos.get(i);
             String statusExtra = "";
 
-            // Checa se o item atual é uma Arma
             if (item instanceof ItemAtaque) {
                 ItemAtaque arma = (ItemAtaque) item;
                 statusExtra = " [Dano Bônus: +" + arma.getDanoBonus() + "]";
             }
-            // Checa se o item atual é uma Armadura
             else if (item instanceof ItemProtecao) {
                 ItemProtecao armadura = (ItemProtecao) item;
                 statusExtra = " [Proteção: " + armadura.getValorDefesa() + "%]";
             }
-            // Checa se o item atual é um Consumível (Poção)
             else if (item instanceof ItemConsumivel) {
                 ItemConsumivel consumivel = (ItemConsumivel) item;
                 statusExtra = " [Regenera: +" + consumivel.getValorRecuperacao() + "]";
             }
 
-            // Imprime o índice, o nome e o status extra que descobrimos acima
             System.out.println("[" + i + "] " + item.getNome() + statusExtra);
         }
 
@@ -572,9 +630,7 @@ public class GerenciadorJogo {
             return;
         }
 
-        // Agora pegamos o item correto da lista filtrada
         Item itemEscolhido = itensExibidos.get(indiceItem);
-
 
         System.out.println("\nVocê selecionou: " + itemEscolhido.getNome());
         System.out.println("[1] Usar (Se for Consumível/Poção)");
@@ -583,7 +639,7 @@ public class GerenciadorJogo {
         System.out.println("[4] Voltar");
         System.out.print("O que deseja fazer? ");
         int acao = scanner.nextInt();
-        scanner.nextLine(); // limpar buffer
+        scanner.nextLine();
 
         switch (acao) {
             case 1:
@@ -615,8 +671,10 @@ public class GerenciadorJogo {
         }
     }
 
+    /**
+     * Emite uma mensagem de encerramento de execução no console ao finalizar o programa.
+     */
     private void exibirFimDeJogo() {
         System.out.println("\nObrigado por jogar Bom De Guerra!");
     }
-
 }

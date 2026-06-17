@@ -45,7 +45,6 @@ public class Mercador {
 
         for (int i = 0; i < estoque.size(); i++) {
             Item item = estoque.get(i);
-            // Atualizado para usar o nome de exibição (pega a quantidade certa se for moeda)
             System.out.println("   [" + i + "] " + item.getNome() + " - Preço: " + item.getPreco() + " Dracmas");
         }
         System.out.println("----------------------------------------");
@@ -66,7 +65,6 @@ public class Mercador {
 
         Item itemDesejado = this.estoque.get(indiceItem);
 
-        // AQUI ENTRA A EXCEÇÃO: Bloqueia a compra estourando o erro caso falte dinheiro
         if(jogador.obterSaldoDracmas() < itemDesejado.getPreco()) {
             throw new SaldoInsuficienteException("Você precisa de " + itemDesejado.getPreco() + " Dracmas para comprar '" + itemDesejado.getNome() + "'.");
         }
@@ -74,7 +72,6 @@ public class Mercador {
         try {
             jogador.adquirirItemInventario(itemDesejado);
 
-            // Se passou da linha anterior, a bolsa tinha espaço! Prossegue com a cobrança
             jogador.pagarMercador(itemDesejado.getPreco());
             this.estoque.remove(itemDesejado); // Remove do estoque do mercador
 
@@ -90,7 +87,7 @@ public class Mercador {
     /**
      * Cuida da venda de um item do jogador para a loja.
      * O mercador paga metade do preço original do item e o coloca no seu estoque.
-     * * @param jogador        O herói que está vendendo o item.
+     * * @param jogador O herói que está vendendo o item.
      * @param itemParaVender O item da bolsa que será vendido.
      */
     public void venderItem(Jogador jogador, Item itemParaVender) {
@@ -99,7 +96,6 @@ public class Mercador {
             return;
         }
 
-        // Se o item for uma moeda, não faz sentido vender dinheiro por dinheiro
         if (itemParaVender instanceof Moeda) {
             System.out.println("\n❌ [LOJA] -> Você não pode vender suas próprias Dracmas!");
             return;
@@ -122,7 +118,7 @@ public class Mercador {
             jogador.adquirirItemInventario(moedasGanhas);
             System.out.println("💰 Você vendeu " + itemParaVender.getNome() + " por " + valorRevenda + " Dracmas!");
         } catch (InventarioCheioException e) {
-            // Linha de segurança caso algo místico aconteça
+            // Linha de segurança caso algo místico aconteça kkk
             System.out.println(e.getMessage());
         }
     }
