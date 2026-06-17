@@ -66,7 +66,7 @@ public class GerenciadorJogo {
 
     private void exibirIntroducao() {
         System.out.println("=======================================================================");
-        System.out.println("                     CRÔNICAS DO OLIMPO: O DESPERTAR                   ");
+        System.out.println("                     BOM DE GUERRA: O DESPERTAR                   ");
         System.out.println("=======================================================================");
         System.out.println("O céu sobre a Grécia Antiga não é mais o mesmo. O Monte Olimpo racha");
         System.out.println("sob o peso de uma força ancestral: Cronos, o Titã do Tempo, está se");
