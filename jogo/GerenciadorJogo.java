@@ -263,7 +263,7 @@ public class GerenciadorJogo {
      * bem como as transições ou encerramento por fim de fase.
      * * @throws InventarioCheioException Se a bolsa lotar ao receber Dracmas ou itens divinos.
      */
-    private void ejecutarTurnoCombate() throws InventarioCheioException {
+    private void executarTurnoCombate() throws InventarioCheioException {
         while (player.getVidaAtual() > 0 && inimigoAtual.getVidaAtual() > 0) {
             System.out.println("\n--- SEU TURNO ---");
             System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)");
@@ -288,6 +288,7 @@ public class GerenciadorJogo {
             jogoRodando = false;
         } else {
             System.out.println("\n Vitória! Você derrotou o " + inimigoAtual.getNome());
+            player.resetarPilhaCombo();
 
             int dracmasGanhas = (int) (Math.random() * 21) + 15;
             System.out.println("💰 Você coletou " + dracmasGanhas + " Dracmas do corpo do inimigo.");
@@ -463,7 +464,7 @@ public class GerenciadorJogo {
      * * @param itemDropado O objeto gerado no mapa ou dropado.
      * @throws InventarioCheioException Interceptada caso a bolsa já esteja com 20 slots cheios.
      */
-    public void ofrecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
+    public void oferecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
         System.out.println("\n=======================================================================");
         System.out.println("                     VOCÊ ENCONTROU UM ITEM!                             ");
         System.out.println("=======================================================================  ");
