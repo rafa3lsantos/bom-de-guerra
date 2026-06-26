@@ -139,7 +139,7 @@ public class GerenciadorJogo {
 
         this.player.setGenero(TipoGenero.MASCULINO);
 
-        System.out.println("\nHerói " + player.getNome() + " criado com sucesso!");
+        System.out.println("\nSemideus " + player.getNome() + " criado com sucesso!");
         System.out.println("Você começa com uma " + espadaBronze.getNome() + " equipada.");
         System.out.println("=======================================================================");
         inicializarMercador();
@@ -263,7 +263,7 @@ public class GerenciadorJogo {
      * bem como as transições ou encerramento por fim de fase.
      * * @throws InventarioCheioException Se a bolsa lotar ao receber Dracmas ou itens divinos.
      */
-    private void ejecutarTurnoCombate() throws InventarioCheioException {
+    private void executarTurnoCombate() throws InventarioCheioException {
         while (player.getVidaAtual() > 0 && inimigoAtual.getVidaAtual() > 0) {
             System.out.println("\n--- SEU TURNO ---");
             System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)");
@@ -289,7 +289,7 @@ public class GerenciadorJogo {
         } else {
             System.out.println("\n Vitória! Você derrotou o " + inimigoAtual.getNome());
 
-            int dracmasGanhas = (int) (Math.random() * 21) + 15;
+            int dracmasGanhas = (int) (Math.random() * 21) + 15; //entre 15 e 35 dracmas
             System.out.println("💰 Você coletou " + dracmasGanhas + " Dracmas do corpo do inimigo.");
             player.adquirirItemInventario(new Moeda(dracmasGanhas));
 
@@ -319,7 +319,7 @@ public class GerenciadorJogo {
 
                 faseAtual++;
                 monstrosDerrotadosNaFase = 0;
-                System.out.println("\n🔮 Uma nova passagem se abre... Você entrou na FASE " + faseAtual + "!");
+                System.out.println("\n Uma nova passagem se abre... Você entrou na FASE " + faseAtual + "!");
             }
         }
     }
@@ -369,7 +369,7 @@ public class GerenciadorJogo {
                     try {
                         mercador.comprarItem(player, opcaoCompra);
                     } catch (SaldoInsuficienteException e) {
-                        System.out.println("\n❌ [NEGÓCIO RECUSADO] -> " + e.getMessage());
+                        System.out.println("\n [NEGÓCIO RECUSADO] -> " + e.getMessage());
                     }
                     break;
 
@@ -386,10 +386,12 @@ public class GerenciadorJogo {
                         break;
                     }
 
-                    System.out.println("\n💰 --- SEUS ITENS PARA VENDA (O Mercador paga metade do preço) ---");
+                    System.out.println("\n --- SEUS ITENS PARA VENDA (O Mercador paga metade do preço) ---");
                     for (int i = 0; i < itensParaVender.size(); i++) {
                         Item itemBolsa = itensParaVender.get(i);
-                        if (itemBolsa.getPreco() <= 0) { itemBolsa.setPreco(calcularPrecoItem(itemBolsa)); }
+                        if (itemBolsa.getPreco() <= 0) {
+                            itemBolsa.setPreco(calcularPrecoItem(itemBolsa));
+                        }
 
                         int valorVenda = itemBolsa.getPreco() / 2;
                         System.out.println("   [" + i + "] " + itemBolsa.getNome() + " -> Hermes paga: " + valorVenda + " Dracmas");
@@ -463,7 +465,7 @@ public class GerenciadorJogo {
      * * @param itemDropado O objeto gerado no mapa ou dropado.
      * @throws InventarioCheioException Interceptada caso a bolsa já esteja com 20 slots cheios.
      */
-    public void ofrecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
+    public void oferecerItemAoJogador(Item itemDropado) throws InventarioCheioException {
         System.out.println("\n=======================================================================");
         System.out.println("                     VOCÊ ENCONTROU UM ITEM!                             ");
         System.out.println("=======================================================================  ");
@@ -550,9 +552,9 @@ public class GerenciadorJogo {
 
         double chanceCategoria = Math.random();
 
-        if (chanceCategoria < 0.50) {
+        if (chanceCategoria < 0.50) { //ate 0.4999
             itemGerado = consumiveis.get((int) (Math.random() * consumiveis.size()));
-        } else if (chanceCategoria < 0.80) {
+        } else if (chanceCategoria < 0.80) { //entre 0.5 e 0.79
             itemGerado = armas.get((int) (Math.random() * armas.size()));
         } else {
             itemGerado = protecoes.get((int) (Math.random() * protecoes.size()));
