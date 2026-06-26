@@ -6,6 +6,9 @@ import itens.*;
 import jogo.InterfaceUsuario;
 import personagens.Personagem;
 import personagens.inimigos.Inimigo;
+import jogo.MarcaCombo;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -23,6 +26,8 @@ public class Jogador extends Personagem {
     private ItemProtecao armaduraEquipada;
     private List<Item> inventario;
     private int forcaBase;
+
+    private Deque<MarcaCombo> pilhaCombo;
 
     /**
      * Construtor para criar o seu herói com todos os status iniciais.
@@ -45,6 +50,7 @@ public class Jogador extends Personagem {
         this.inventario = inventario;
         this.forcaBase = 30;
         this.inventario = new ArrayList<>(); // Inicializa a lista vazia
+        this.pilhaCombo = new ArrayDeque<>(); // Inicializa a pilha
     }
 
     /**
@@ -62,7 +68,31 @@ public class Jogador extends Personagem {
             jogo.InterfaceUsuario.atacou(false, getNome(), getArmaEquipada());
         }
 
+        // 🔥 LOGICA DA PILHA: Calcula o bônus acumulado de todos os elementos na pilha
+        int bonusAcumulado = 0;
+        for (MarcaCombo marca : pilhaCombo) {
+            bonusAcumulado += marca.getDanoBonus();
+        }
+
+        if (bonusAcumulado > 0) {
+            danoTotal += bonusAcumulado;
+            System.out.println("🔥 [COMBO x" + (pilhaCombo.size() + 1) + "] Seus golpes consecutivos adicionaram +" + bonusAcumulado + " de dano!");
+        }
+
         alvo.receberDano(danoTotal);
+
+        // PUSH: Empilha uma nova marca para o PRÓXIMO ataque (limite de até 5 combos, por exemplo)
+        if (pilhaCombo.size() < 5) {
+            // Cada acerto consecutivo empilha um bônus de +5 de dano
+            pilhaCombo.push(new MarcaCombo(5));
+        }
+    }
+
+    /**
+     * Zera o combo do jogador ao final de uma batalha ou em eventos específicos.
+     */
+    public void resetarPilhaCombo() {
+        this.pilhaCombo.clear();
     }
 
     /**
@@ -76,6 +106,12 @@ public class Jogador extends Personagem {
             this.escudoAtual = this.escudoMax;
         }
         System.out.println(getNome() + " adotou uma postura defensiva e recuperou " + recuperacao + " de escudo!");
+
+        // 🔥 LÓGICA DA PILHA: Se defendeu, perdeu o combo!
+        if (!pilhaCombo.isEmpty()) {
+            pilhaCombo.clear(); // Esvazia a pilha
+            System.out.println("⚠️ Você quebrou o seu ritmo de ataque! A pilha de combo foi resetada.");
+        }
     }
 
     /**

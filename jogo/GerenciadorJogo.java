@@ -288,6 +288,7 @@ public class GerenciadorJogo {
             jogoRodando = false;
         } else {
             System.out.println("\n Vitória! Você derrotou o " + inimigoAtual.getNome());
+            player.resetarPilhaCombo();
 
             int dracmasGanhas = (int) (Math.random() * 21) + 15; //entre 15 e 35 dracmas
             System.out.println("💰 Você coletou " + dracmasGanhas + " Dracmas do corpo do inimigo.");
