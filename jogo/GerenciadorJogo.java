@@ -13,6 +13,7 @@ import personagens.jogador.Jogador;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Stack;
 
 /**
  * Classe controladora central do jogo (Engine).
@@ -35,6 +36,8 @@ public class GerenciadorJogo {
     private int faseAtual;
     /** Contador de capangas derrotados no estágio vigente. */
     private int monstrosDerrotadosNaFase;
+
+    private Stack <AcaoCombate> historicoTurno = new Stack<>();
 
     /**
      * Construtor padrão do gerenciador.
@@ -264,17 +267,42 @@ public class GerenciadorJogo {
      * * @throws InventarioCheioException Se a bolsa lotar ao receber Dracmas ou itens divinos.
      */
     private void executarTurnoCombate() throws InventarioCheioException {
+
+        historicoTurno.clear(); //sempre que comeca um novo combate, limpa o historico antigo
+
         while (player.getVidaAtual() > 0 && inimigoAtual.getVidaAtual() > 0) {
             System.out.println("\n--- SEU TURNO ---");
-            System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)");
+            System.out.println("[1] Atacar   [2] Defender (Recuperar Escudo)  [3] Desfazer Ultima Ação");
             System.out.print("Escolha: ");
             int acao = scanner.nextInt();
             scanner.nextLine();
 
             if (acao == 1) {
+                AcaoCombate estado = new AcaoCombate("ATACAR", inimigoAtual.getVidaAtual(), player.getEscudoAtual());
+                historicoTurno.push(estado);
                 player.atacar(inimigoAtual);
-            } else {
+
+            } else if (acao == 2) {
+                AcaoCombate estado = new AcaoCombate("DEFENDER", inimigoAtual.getVidaAtual(), player.getEscudoAtual());
+                historicoTurno.push(estado);
                 player.defender();
+
+            } else if (acao == 3) {
+                if (!historicoTurno.isEmpty()) {
+                    AcaoCombate ultimaAcao = historicoTurno.pop();
+
+                    if(ultimaAcao.getTipoAcao().equals("ATACAR")) {
+                        inimigoAtual.setVidaAtual(ultimaAcao.getVidaInimigoAntes());
+                        System.out.println("[PILHA] Ataque desfeito! A vida do " + inimigoAtual.getNome() + " retornou para: " + inimigoAtual.getVidaAtual());
+                    } else if (ultimaAcao.getTipoAcao().equals("DEFENDER")) {
+                        player.setEscudoAtual(ultimaAcao.getEscudoPlayerAntes());
+                        System.out.println("[PILHA] Defesa desfeita! Seu escudo retornou para: " + player.getEscudoAtual());
+                    }
+                    continue; //nao da chance ao monstro de atacar e volta ao inicio
+                } else {
+                    System.out.println("Opcao invalida, não ha acoes para serem desfeitas");
+                    continue;
+                }
             }
 
             if (inimigoAtual.getVidaAtual() > 0) {
